@@ -7,6 +7,11 @@ class Escenario(QWidget):
 		QWidget.__init__(self, *args)
         contenedor = QVBoxLayout()
         self.setLayout(contenedor)
-	
+		
+	def setObserver(self,observer):
+		self._observer=observer
+		
+	def iforma(self):
+		self._observer.update()
 		
 		
