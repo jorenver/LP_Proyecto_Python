@@ -1,11 +1,12 @@
 from Escenario import *
 from Jugador import*
-import sys
-import time
-import threading
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from threading import *
+from time import sleep
 from PyQt4 import QtCore
+import sys
+import math
 
 class EscenarioTres(Escenario):
 
@@ -15,6 +16,8 @@ class EscenarioTres(Escenario):
 		self.todoTrreno=True
 		self._iniPendiente=500
 		self._finPendiente=755
+		self.hiloCaida=None
+		self.hiloSalto=None
 		self.piso1=430
 		self.piso2=290
 		self.jugador=Jugador(20,430,Qt.white,5)
@@ -52,14 +55,84 @@ class EscenarioTres(Escenario):
 				self.jugador.acender(2.65)
 			elif x<=self._iniPendiente or x>=self._finPendiente:
 				self.jugador.avanzar()
-			self.repaint()
+			
+			if x>=100 and x<=200:
+				self.hiloCaida=HiloCaida(self)
+				self.hiloCaida.start()
+			else:
+				self.repaint()
 		if self.mover and e.key()==QtCore.Qt.Key_Left:
-			self.jugador.retroceder()
+			x=self.jugador.getPosX()
+			if(x>self._iniPendiente and x<self._finPendiente):
+				self.jugador.retroceder()
+				self.jugador.descender(2.65)
+			elif x<=self._iniPendiente or x>=self._finPendiente:
+				self.jugador.retroceder()
+			'''
+			if x>=100 and x<=200:
+				self.hiloCaida=HiloCaida(self)
+				self.hiloSalto=HiloSalto(self)
+				self.hiloSalto.start()
+			else:
+			'''
 			self.repaint()
 		if self.mover and e.key()==QtCore.Qt.Key_X:
 			if(self.jugador.getPosX()>=40 and self.jugador.getPosX()<=75):
-				print "se abre el cofre"
-			
+				self.hiloSalto=HiloSalto(self)
+				self.hiloSalto.start()
+
+class HiloCaida(Thread):
+	
+	def __init__(self,esc):
+		Thread.__init__(self)
+		self.escenario=esc
+		
+	def run(self):
+		self.escenario.mover=False
+		yo= self.escenario.jugador.getPosY()
+		xo= self.escenario.jugador.getPosX()
+		y=0
+		t=0
+		while True:
+			if (y<=690):
+				xo=xo+15
+				y=yo+9.8*t
+				t+=4
+				self.escenario.jugador.setPosY(y)
+				self.escenario.jugador.setPosX(xo)
+				self.escenario.repaint()
+				sleep(0.25)
+			else:
+				print ("ha perdido")
+				break
+	
+class HiloSalto(Thread):
+	
+	def __init__(self,esc):
+		Thread.__init__(self)
+		self.escenario=esc
+		
+	def run(self):
+		self.escenario.mover=False
+		yo= self.escenario.jugador.getPosY()
+		xo= self.escenario.jugador.getPosX()
+		y=self.escenario.jugador.getPosY()
+		#y=0
+		while True:
+			if (xo<=205):
+				yo=yo-9.8
+			elif (yo<y):
+				yo=yo+9.8
+			else:
+				self.escenario.mover=True
+				break
+			xo=xo+30
+			self.escenario.jugador.setPosY(yo)
+			self.escenario.jugador.setPosX(xo)
+			self.escenario.repaint()
+			print yo ," ", y
+			sleep(0.25)
+
 	
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
