@@ -9,6 +9,9 @@ import sys
 import math
 
 class EstadosPuente:
+	"""
+	Clase para especificar los estados del puente
+	"""
 	Subido=1
 	Bajando=2
 	Bajado=3
@@ -18,15 +21,18 @@ class EscenarioUno(Escenario):
 
 	def __init__(self,*args):
 		Escenario.__init__(self,*args)
-		self.theta=45
+		self.theta=45   #angulo inicial del puente medido desde la horizontal en sentido contrario a las manecillas del reloj
 		self.ganar=True
-		self.mover=True
-		self.caer=False
-		self.hilop=HiloPuente(self)
+		self.mover=True #bloque el movimiento del jugador
+		self.ActivarPuente=False 
+		self.flaqPalanca=False #mueve la palanca
+		# hilos para el movimiento del puente y la caida del jugador
+		self.hilop=HiloPuente(self) 
 		self.hiloC=HiloCaida(self)
-		self.estadoPuente=EstadosPuente.Subido 
+		# el puente inicializa como subido
+		self.estadoPuente=EstadosPuente.Subido
+		#creacion del jugador
 		self.jugador=Jugador(40,500,Qt.white,5)
-		self.hiloj=HiloCaida(self)
 		self.setWindowTitle("Escenario Uno")
 		
 	def paintEvent(self, event):       
@@ -38,10 +44,11 @@ class EscenarioUno(Escenario):
 		paint.setRenderHint(QPainter.Antialiasing)
 		imagen=QImage("esc1","png")
 		center=QPoint(0,0)
-		paint.drawImage(center,imagen)
+		paint.drawImage(center,imagen) # inserto el fondo
 		pen =QPen (Qt.blue, 10,Qt.SolidLine)
 		paint.setPen(pen)
-		paint.drawLine(650,520,650+corxPuente,520-coryPuente)
+		paint.drawLine(650,520,650+corxPuente,520-coryPuente) # dibuja el puente
+		self.pintarPalanca(paint)
 		self.pintarJugador(paint)
 		paint.end()
 		
@@ -53,6 +60,15 @@ class EscenarioUno(Escenario):
 		radio=self.jugador.getRadio()
 		painter.drawEllipse(center,radio,radio)
 	
+	def pintarPalanca(self,painter):
+		pen =QPen (Qt.red,5,Qt.SolidLine)
+		painter.setPen(pen)
+		if (self.flaqPalanca==False): # palanca desactivada
+			painter.drawLine(270,520,295,476.7)
+		else:
+			painter.drawLine(270,520,245,476.7) # palanca activada
+
+	
 	def setAngle(self,angulo):
 		self.theta=angulo
 		self.repaint()
@@ -61,14 +77,15 @@ class EscenarioUno(Escenario):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			self.trasladarJugador()
 			if self.mover:
-				print("llamada a repaint")
 				self.repaint()
 		
 		elif self.mover and e.key()==QtCore.Qt.Key_Left:
 			self.jugador.retroceder()
 			self.repaint()
 		
-		elif self.mover and e.key()==Qt.Key_Enter:
+		elif self.mover and e.key()==Qt.Key_Enter and self.ActivarPuente:
+			self.flaqPalanca=True
+			self.repaint()
 			self.bajarPuente()
 			
 	def bajarPuente(self):
@@ -83,12 +100,18 @@ class EscenarioUno(Escenario):
 		# ademas si el puente no esta bajado, el jugador caera
 		if x>=400 and not self.estadoPuente==EstadosPuente.Bajado:
 			self.mover=False
-			self.caer=True
 			# ejecuta el hilo de caida
 			self.hiloC.start()
 			self.ganar=False
+		elif x>=250 and x<=290:
+			self.jugador.avanzar()
+			self.ActivarPuente=True
+		elif not (x>=250 and x<=290):
+			self.ActivarPuente=False
+			self.jugador.avanzar()
 		else:
 			self.jugador.avanzar()
+		
 			
 class HiloPuente(Thread):
 	#clase que sirve para descender el puente
@@ -130,10 +153,10 @@ class HiloCaida(Thread):
 				t+=4
 				self.escenario.jugador.setPosY(y)
 				self.escenario.jugador.setPosX(xo)
-				print(y,xo)
 				self.escenario.repaint()
 				sleep(0.25)
 			else:
+				print ("ha perdido")
 				break
 				
 app = QApplication(sys.argv)
