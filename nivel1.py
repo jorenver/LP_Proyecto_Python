@@ -21,7 +21,9 @@ class EscenarioUno(Escenario):
 		self.theta=45
 		self.ganar=True
 		self.mover=True
+		self.caer=False
 		self.hilop=HiloPuente(self)
+		self.hiloC=HiloCaida(self)
 		self.estadoPuente=EstadosPuente.Subido 
 		self.jugador=Jugador(40,500,Qt.white,5)
 		self.hiloj=HiloCaida(self)
@@ -58,7 +60,9 @@ class EscenarioUno(Escenario):
 	def keyPressEvent(self,e):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			self.trasladarJugador()
-			self.repaint()
+			if self.mover:
+				print("llamada a repaint")
+				self.repaint()
 		
 		elif self.mover and e.key()==QtCore.Qt.Key_Left:
 			self.jugador.retroceder()
@@ -75,14 +79,16 @@ class EscenarioUno(Escenario):
 		
 	def trasladarJugador(self):
 		x=self.jugador.getPosX()
+		# si la posicion X es mayor que 400 llega al abismo
+		# ademas si el puente no esta bajado, el jugador caera
 		if x>=400 and not self.estadoPuente==EstadosPuente.Bajado:
-			#self.hiloj.start()
+			self.mover=False
+			self.caer=True
+			# ejecuta el hilo de caida
+			self.hiloC.start()
 			self.ganar=False
 		else:
 			self.jugador.avanzar()
-			
-		
-			
 			
 class HiloPuente(Thread):
 	#clase que sirve para descender el puente
@@ -107,22 +113,28 @@ class HiloPuente(Thread):
 						
 class HiloCaida(Thread):
 	
-	def __init__(self,Escenacio):
+	def __init__(self,esc):
 		Thread.__init__(self)
-		self.escenario=Escenario
+		self.escenario=esc
 		
 	def run(self):
 		self.escenario.mover=False
 		yo= self.escenario.jugador.getPosY()
+		xo= self.escenario.jugador.getPosX()
+		y=0
+		t=0
 		while True:
-			y=yo+10
-			if (y<=670):
+			if (y<=690):
+				xo=xo+15
+				y=yo+9.8*t
+				t+=4
 				self.escenario.jugador.setPosY(y)
+				self.escenario.jugador.setPosX(xo)
+				print(y,xo)
 				self.escenario.repaint()
-				sleep(0.5)
+				sleep(0.25)
 			else:
 				break
-		self.escenario.mover=True
 				
 app = QApplication(sys.argv)
 nivel1 = EscenarioUno()
