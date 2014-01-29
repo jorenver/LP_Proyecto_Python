@@ -33,6 +33,9 @@ class Jugador:
 	def getRadio(self):
 		return self._radio
 	
+	def getVelocidad(self):
+		return self._velocidad
+			
 	def setPosX(self,x):
 		self._posX=x
 	
