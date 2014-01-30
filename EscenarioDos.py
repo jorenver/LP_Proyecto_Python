@@ -5,6 +5,18 @@ import time
 import threading
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQt4 import QtCore
+
+class Accion:
+	pasadizo=0
+	caida=1
+	salto=2
+	teletransportacion=3
+
+class EstadoEscenario:	
+	pasadizoOff=0
+	pasadizoOn=1	
+	pisoTres=2
 
 class EscenarioDos(Escenario):
 	pisoUno=None
@@ -12,65 +24,140 @@ class EscenarioDos(Escenario):
 	pisoTres=None
 	nivel_piso_x=200 #separacion horizontal entre pisos
 	nivel_piso_y=300 # altura de los pisos
-	my_thread=None
+	valor=0
+	tam=0
 
-	def __init__(self,*args,Jugador): #constructor		
+	def __init__(self,*args): #constructor		
 		Escenario.__init__(self,*args)
-		self.my_thread=Hilo(self,125,0)
-		self.my_thread.start()
-		self.jugador=Jugador
+		color=QColor(0,0,155)		
+		self.jugador=Jugador(0,Escenario.dimension_y-self.nivel_piso_y-50,color,10)#posicion inicial del jugador
+		self.jugador.setRadio(50)
 		self.setWindowTitle("Escenario Dos")
+		self.thread_pintarPasadizo=Hilo(self,Accion.pasadizo)
+		self.estadoEscenario=EstadoEscenario.pasadizoOff
 
 	def paintEvent(self, event):
 		paint = QPainter()
 		paint.begin(self)
 		paint.setRenderHint(QPainter.Antialiasing)
-		paint.setBrush(Qt.white) # cambiar el color
-		paint.drawRect(event.rect())
 		fondoEscenario=QImage("Fondo_Escenario_Dos","png")
 		center=QPoint(0,0)
 		paint.drawImage(center,fondoEscenario)
 		self.dibujarPisos(paint)
+		paint.setBrush(self.jugador.getColor())
+		paint.drawEllipse(self.jugador.getPosX(),self.jugador.getPosY(),self.jugador.getRadio(),self.jugador.getRadio())
+		paint.setBrush(Qt.green)
+		paint.drawRect(self.tam,Escenario.dimension_y-self.nivel_piso_y,self.thread_pintarPasadizo.valor_X,10)#rectangulo que se mueve
 		paint.end()
 
 	def dibujarPisos(self,painter):
-		tam=125 #ancho del piso
+		self.tam=125 #ancho del piso
 		valor_X=0 
 		valor_Y=0
-		painter.drawRect(self.my_thread.valor_X,self.my_thread.valor_Y,self.nivel_piso_x,10)#rectangulo que se mueve
-		pisoUno=QRect(0,Escenario.dimension_y-self.nivel_piso_y,tam,self.nivel_piso_y)
-		pisoDos=QRect(tam,Escenario.dimension_y-10,self.nivel_piso_x,10)
-		pisoTres=QRect(tam+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y,2*tam,self.nivel_piso_y)#piso tres es dos veces mas grande que piso Uno
-		pisoCuatro=QRect(3*tam+self.nivel_piso_x+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y,2*tam,self.nivel_piso_y)#piso cuatro es dos veces mas grande que piso Uno
+		pisoUno=QRect(0,Escenario.dimension_y-self.nivel_piso_y,self.tam,self.nivel_piso_y)
+		pisoDos=QRect(self.tam,Escenario.dimension_y-10,self.nivel_piso_x,10)
+		pisoTres=QRect(self.tam+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y,2*self.tam,self.nivel_piso_y)#piso tres es dos veces mas grande que piso Uno
+		pisoCuatro=QRect(3*self.tam+self.nivel_piso_x+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y,2*self.tam,self.nivel_piso_y)#piso cuatro es dos veces mas grande que piso Uno
 		painter.setBrush(Qt.green)
 		painter.drawRect(pisoUno)
 		painter.drawRect(pisoDos)
 		painter.drawRect(pisoTres)
 		painter.drawRect(pisoCuatro)
 
-	def jugar(self):
+	def keyPressEvent(self,e):
+		if e.key()==QtCore.Qt.Key_Right:
+			self.jugador.avanzar()
+			self.repaint()# se vuelve a pintar el circulo con las nuevas coordenadas
+			if self.jugador.getPosX()>self.tam-self.jugador.getRadio()/2:
+				if self.estadoEscenario==EstadoEscenario.pasadizoOff:  
+					self.my_thread=Hilo(self,Accion.caida)
+					self.my_thread.start()
+
+		if e.key()==QtCore.Qt.Key_Left:
+			self.jugador.retroceder()
+			self.repaint()	
+
+		if e.key()==QtCore.Qt.Key_X:
+			self.hilo=Hilo(self,Accion.teletransportacion)
+			self.hilo.start()
+		if e.key()==QtCore.Qt.Key_Y:
+			self.hilo=Hilo(self,Accion.salto)
+			self.hilo.start()
 
 
-		
-	
+	def  actualizar(self):
+		self.thread_pintarPasadizo.start()
+
+
 class Hilo(threading.Thread):
 
-	def __init__(self,Escenario,valor_X,valor_Y):
+	def __init__(self,Escenario,accion):
 		threading.Thread.__init__(self)
 		self.escenarioDos=Escenario
-		self.valor_X=valor_X
-		self.valor_Y=valor_Y
+		self.accion=accion #define el tipo de accion que se ejecutara
+		self.valor_X=0
+		self.valor_Y=0
+		self.light=self.light=0
 
 	def run(self):
+		if self.accion==Accion.pasadizo:#pasadizo
+			self.pintarPasadizo()
+		elif self.accion==Accion.caida:# jugador se cae
+			self.jugadorCaida()
+		elif self.accion==Accion.salto: #jugador salta
+			self.jugadorSaltar()
+		elif self.accion==Accion.teletransportacion: # teletransportacion
+			self.jugadorTeletransportacion()
+
+	def pintarPasadizo(self):
+		self.valor_X=0
 		while True:
-			#self.valor_X=self.valor_X+10
-			self.valor_Y=self.valor_Y+10
+			self.valor_X=self.valor_X+20
 			self.escenarioDos.repaint() #se ejecuta la funcion paint Event mientras el hilo este en ejecucion
-			time.sleep(1)
-			if(self.valor_Y==self.escenarioDos.dimension_y-self.escenarioDos.nivel_piso_y-10):
+			time.sleep(0.01)
+			if(self.valor_X==self.escenarioDos.nivel_piso_x):
+				self.escenarioDos.estadoEscenario=EstadoEscenario.pasadizoOn#el pasadizo se ha dibujado por completo y se cambia el esta del escenario
 				break
 
+	def jugadorCaida(self):
+		self.valor_X=self.escenarioDos.jugador.getPosX()
+		self.valor_Y=self.escenarioDos.jugador.getPosY()
+		while True:
+			self.valor_X=self.valor_X+20
+			self.valor_Y=self.valor_Y+40
+			self.escenarioDos.jugador.setPosX(self.valor_X)
+			self.escenarioDos.jugador.setPosY(self.valor_Y)
+			time.sleep(0.25)
+			self.escenarioDos.repaint()
+			if self.valor_Y>self.escenarioDos.dimension_y-80:
+				self.escenarioDos.actualizar()
+				break
 
+	def jugadorSaltar(self):
+		pass
+
+
+	def jugadorTeletransportacion(self):
+		dark=0
+		light=0
+		while True:
+			if light<100:
+				light=light+20
+				color=QColor(0,0,155+light,255)
+				self.escenarioDos.jugador.setColor(color)#cambiando el color en cada iteraccion # si color es mayor que un valor x se cambia la posicion del jugador a posDestino_X,PosDestion_Y
+				self.escenarioDos.repaint()
+				time.sleep(0.1)
+			else:
+				dark=dark+20
+				color=QColor(0,0,255-dark,255)
+				self.escenarioDos.jugador.setColor(color)
+				self.escenarioDos.jugador.setPosX(self.escenarioDos.tam+self.escenarioDos.nivel_piso_x) 
+				self.escenarioDos.jugador.setPosY(self.escenarioDos.dimension_y-self.escenarioDos.nivel_piso_y-self.escenarioDos.jugador.getRadio())
+				self.escenarioDos.repaint()
+				self.escenarioDos.estadoEscenario=EstadoEscenario.pisoTres
+				time.sleep(0.1)
+				if(dark>=100):
+					break
 
 
 if __name__=="__main__":
