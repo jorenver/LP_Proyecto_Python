@@ -13,7 +13,7 @@ class EscenarioTres(Escenario):
 	def __init__(self,*args):
 		Escenario.__init__(self,*args)
 		self.mover=True #sirve para saber si el jugador se puede mover
-		self.todoTrreno=True
+		self.todoTerreno=False
 		self._iniPendiente=500
 		self._finPendiente=755
 		self.hiloCaida=None
@@ -50,14 +50,14 @@ class EscenarioTres(Escenario):
 	def keyPressEvent(self,e):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			x=self.jugador.getPosX()
-			if(self.todoTrreno and x>self._iniPendiente and x<self._finPendiente):
+			if(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.avanzar()
 				self.jugador.acender(2.65)
 			elif x<=self._iniPendiente or x>=self._finPendiente:
 				self.jugador.avanzar()
 			
 			if x>=100 and x<=200:
-				self.hiloCaida=HiloCaida(self)
+				self.hiloCaida=HiloCaida(self,1)
 				self.hiloCaida.start()
 			else:
 				self.repaint()
@@ -68,23 +68,24 @@ class EscenarioTres(Escenario):
 				self.jugador.descender(2.65)
 			elif x<=self._iniPendiente or x>=self._finPendiente:
 				self.jugador.retroceder()
-			'''
-			if x>=100 and x<=200:
-				self.hiloCaida=HiloCaida(self)
-				self.hiloSalto=HiloSalto(self)
-				self.hiloSalto.start()
+			if x>=200 and x<=300:
+				self.hiloCaida=HiloCaida(self,-1)
+				self.hiloCaida.start()
 			else:
-			'''
-			self.repaint()
+				self.repaint()
 		if self.mover and e.key()==QtCore.Qt.Key_X:
 			if(self.jugador.getPosX()>=40 and self.jugador.getPosX()<=75):
 				self.hiloSalto=HiloSalto(self)
 				self.hiloSalto.start()
-
+			if(self.jugador.getPosX()>=370 and self.jugador.getPosX()<=420):
+				self.todoTerreno=True
+				self.jugador.setColor(Qt.black)
+				self.repaint()
 class HiloCaida(Thread):
 	
-	def __init__(self,esc):
+	def __init__(self,esc,dir):
 		Thread.__init__(self)
+		self.dir=dir
 		self.escenario=esc
 		
 	def run(self):
@@ -95,7 +96,7 @@ class HiloCaida(Thread):
 		t=0
 		while True:
 			if (y<=690):
-				xo=xo+15
+				xo=xo+15*(self.dir)
 				y=yo+9.8*t
 				t+=4
 				self.escenario.jugador.setPosY(y)
