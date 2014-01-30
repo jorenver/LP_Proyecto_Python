@@ -9,17 +9,28 @@ class Jugador:
 		self._velocidad=v
 		self._radio=20
 	
-	def avanzar(self):
-		self._posX=self._posX+self._velocidad
-	
-	def retroceder(self):
-		self._posX=self._posX-self._velocidad
-		
-	def acender(self):
-		self._posY=self._posY-self._velocidad
-	
-	def descender(self):
-		self._posY=self._posY+self._velocidad
+	def avanzar(self,v=None):
+		if(v==None ):
+			self._posX=self._posX+self._velocidad
+		else:
+			self._posX=self._posX+v
+	def retroceder(self,v=None):
+		if(v==None ):
+			self._posX=self._posX-self._velocidad
+		else:
+			self._posX=self._posX-v
+			
+	def acender(self,v=None):
+		if v==None:
+			self._posY=self._posY-self._velocidad
+		else:
+			self._posY=self._posY-v
+			
+	def descender(self,v=None):
+		if v==None:
+			self._posY=self._posY+self._velocidad
+		else:
+			self._posY=self._posY+v
 	
 	def getPosX(self):
 		return self._posX
@@ -33,9 +44,6 @@ class Jugador:
 	def getRadio(self):
 		return self._radio
 	
-	def getVelocidad(self):
-		return self._velocidad
-			
 	def setPosX(self,x):
 		self._posX=x
 	
