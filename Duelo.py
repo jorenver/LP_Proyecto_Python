@@ -38,16 +38,25 @@ class Duelo(QWidget):
 		paint = QPainter()
 		paint.begin(self)
 		paint.setRenderHint(QPainter.Antialiasing)
+		paint.setBrush(Qt.white)
+		paint.drawRect(event.rect())
 		paint.setBrush(Qt.black) # cambiar el color
 		paint.drawRect(50,50,self.ancho,30)
 		paint.setBrush(Qt.white)
 		paint.drawRect(51,51,self.ancho-2,28)
 		paint.setBrush(Qt.red)
 		paint.drawRect(51,51,self.anchopintado,28)
+		paint.drawString("eloy");
 		paint.end()
+		
+	#def infoJugador(self,painter):
+		
+		
 	
 	def keyPressEvent(self,e):
 		if e.key()==QtCore.Qt.Key_X:
+			if (self.hilo!=None):
+				self.hilo.stop=True
 			print "gano"
 	
 		
@@ -56,14 +65,17 @@ class Barra(Thread):
 	def __init__(self,duel):
 		Thread.__init__(self)
 		self.duelo=duel
+		self.stop=False
 		
 	def run(self):
 		while True:
 			self.duelo.anchopintado-=5
 			self.duelo.repaint()
+			if (self.stop):
+				break
 			if(self.duelo.anchopintado<=0):
 				print "perdio"
-				break;
+				break
 			sleep(0.1)
 		
 

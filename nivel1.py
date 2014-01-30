@@ -32,7 +32,7 @@ class EscenarioUno(Escenario):
 		# el puente inicializa como subido
 		self.estadoPuente=EstadosPuente.Subido
 		#creacion del jugador
-		self.jugador=Jugador(40,500,Qt.white,5)
+		self.jugador=None
 		self.setWindowTitle("Escenario Uno")
 		
 	def paintEvent(self, event):       
@@ -49,8 +49,13 @@ class EscenarioUno(Escenario):
 		paint.setPen(pen)
 		paint.drawLine(650,520,650+corxPuente,520-coryPuente) # dibuja el puente
 		self.pintarPalanca(paint)
-		self.pintarJugador(paint)
+		if (self.jugador!=None):
+			self.pintarJugador(paint)
 		paint.end()
+		
+	def setJugador(self,jugador):
+		self.jugador=jugador
+		self.repaint()
 		
 	def pintarJugador(self,painter):
 		center=QPoint(self.jugador.getPosX(),self.jugador.getPosY())
@@ -160,6 +165,8 @@ class HiloCaida(Thread):
 				break
 				
 app = QApplication(sys.argv)
+jugador=Jugador(40,500,Qt.white,5)
 nivel1 = EscenarioUno()
+nivel1.setJugador(jugador)
 nivel1.show()
 app.exec_()
