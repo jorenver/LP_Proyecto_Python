@@ -3,6 +3,7 @@ from Jugador import*
 import sys
 import time
 import threading
+from Duelo import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4 import QtCore
@@ -83,7 +84,7 @@ class EscenarioDos(Escenario):
 			self.jugador.retroceder()
 			self.repaint()	
 
-		if e.key()==QtCore.Qt.Key_X:
+		if self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
 			self.mover=False #bloquea el movimiento
 			self.hilo=Hilo(self,Accion.teletransportacion)
 			self.hilo.start()
@@ -92,6 +93,8 @@ class EscenarioDos(Escenario):
 			self.mover=False #bloquea el movimiento
 			self.hilo=Hilo(self,Accion.salto)
 			self.hilo.start()
+		if self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x:
+			self.duelo=Duelo(self.jugador)
 
 
 	def  activarPasadizo(self):
