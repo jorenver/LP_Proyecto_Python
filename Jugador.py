@@ -9,6 +9,7 @@ class Jugador:
 		self.vidas=3
 		self._velocidad=v
 		self._radio=20
+		self.nivel_actual=1
 	
 	def avanzar(self,v=None):
 		if(v==None ):
@@ -66,4 +67,10 @@ class Jugador:
 	
 	def getVidasString(self):
 		return "Vidas: %d"%(self.vidas)
+
+	def getNivel(self):
+		return self.nivel_actual
+
+	def setNivel(self,nivel):
+		self.nivel_actual=nivel
 			
