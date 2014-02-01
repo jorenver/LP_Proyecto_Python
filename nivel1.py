@@ -1,5 +1,6 @@
 from Escenario import *
 from Jugador import*
+from Duelo import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from threading import *
@@ -29,6 +30,7 @@ class EscenarioUno(Escenario):
 		# hilos para el movimiento del puente y la caida del jugador
 		self.hilop=HiloPuente(self) 
 		self.hiloC=HiloCaida(self)
+		self.Duelo=None
 		# el puente inicializa como subido
 		self.estadoPuente=EstadosPuente.Subido
 		#creacion del jugador
@@ -114,6 +116,11 @@ class EscenarioUno(Escenario):
 		elif not (x>=250 and x<=290):
 			self.ActivarPuente=False
 			self.jugador.avanzar()
+			if (x>=825):
+				self.Duelo=Duelo()
+				self.Duelo.setJugador(self.jugador)
+				self.mover=False
+		
 		else:
 			self.jugador.avanzar()
 		

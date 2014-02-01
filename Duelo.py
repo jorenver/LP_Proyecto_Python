@@ -15,7 +15,7 @@ class Duelo(QWidget):
 	def __init__(self,*args):
 		QWidget.__init__(self,*args)
 		contenedor=QVBoxLayout()
-		self.setGeometry(50,50,self.dimension_x,self.dimension_y)
+		self.setGeometry(100,100,self.dimension_x,self.dimension_y)
 		self.setLayout(contenedor)
 		self.jugador=None
 		self.dificultad=None
