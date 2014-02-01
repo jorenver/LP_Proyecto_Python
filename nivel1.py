@@ -128,6 +128,7 @@ class EscenarioUno(Escenario):
 			if (x>=825):
 				self.Duelo=Duelo()
 				self.Duelo.setJugador(self.jugador)
+				self.Duelo.setNivelObservador(self)
 				self.mover=False
 		
 		else:
@@ -137,7 +138,9 @@ class EscenarioUno(Escenario):
 		if (self.jugador.vidas==0):
 			print("perdiste")
 			self.close()
-		
+	
+	def Gano(self):
+		print "Ganaste!!!"
 			
 class HiloPuente(Thread):
 	#clase que sirve para descender el puente

@@ -19,6 +19,7 @@ class Duelo(QWidget):
 		self.setLayout(contenedor)
 		self.jugador=None
 		self.dificultad=None
+		self.NivelObservador=None
 		self.ancho=500
 		self.anchopintado=498
 		self.hilo=Barra(self)
@@ -33,6 +34,9 @@ class Duelo(QWidget):
 	def setDificultad(self,dif):
 		self.dificultad=dif
 		print self.dificultad
+		
+	def setNivelObservador(self,Nivel):
+		self.NivelObservador=Nivel
 		
 	def paintEvent(self, event):       
 		paint = QPainter()
@@ -55,7 +59,7 @@ class Duelo(QWidget):
 			text=self.jugador.getVidasString()
 			painter.setPen (QColor (168, 34, 3))
 			painter.setFont (QFont ('decorativo', 10))
-			painter.drawText (area, Qt.AlignCenter, text)   
+			painter.drawText (area, Qt.AlignCenter, text)   		
 		
 	def reiniciar(self):
 		if (self.jugador!=None):
@@ -68,6 +72,8 @@ class Duelo(QWidget):
 			else:
 				self.jugador.disminuirVidas()
 				self.repaint()
+				if self.NivelObservador!=None:
+					self.NivelObservador.Perdio()
 				self.close()
 							
 	
@@ -75,6 +81,8 @@ class Duelo(QWidget):
 		if e.key()==QtCore.Qt.Key_X:
 			if (self.hilo!=None):
 				self.hilo.stop=True
+			if (self.NivelObservador!=None):
+				self.NivelObservador.Gano()
 			self.close()
 	
 		
