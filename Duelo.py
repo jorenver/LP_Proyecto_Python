@@ -46,12 +46,32 @@ class Duelo(QWidget):
 		paint.drawRect(51,51,self.ancho-2,28)
 		paint.setBrush(Qt.red)
 		paint.drawRect(51,51,self.anchopintado,28)
-		paint.drawString("eloy");
+		self.infoJugador(paint)
 		paint.end()
 		
-	#def infoJugador(self,painter):
+	def infoJugador(self,painter):
+		if (self.jugador!=None):
+			area=QRectF(100.0,50.0,200.0,150.0)
+			text=self.jugador.getVidasString()
+			painter.setPen (QColor (168, 34, 3))
+			painter.setFont (QFont ('decorativo', 10))
+			painter.drawText (area, Qt.AlignCenter, text)   
 		
-		
+	def reiniciar(self):
+		if (self.jugador!=None):
+			if(self.jugador.vidas!=1):
+				self.anchopintado=498
+				self.jugador.disminuirVidas()
+				self.repaint()
+				self.hilo=Barra(self)
+				self.hilo.start()
+			else:
+				self.jugador.disminuirVidas()
+				self.repaint()
+				
+				
+				
+				
 	
 	def keyPressEvent(self,e):
 		if e.key()==QtCore.Qt.Key_X:
@@ -75,15 +95,17 @@ class Barra(Thread):
 				break
 			if(self.duelo.anchopintado<=0):
 				print "perdio"
+				self.duelo.reiniciar()
 				break
 			sleep(0.1)
 		
 
 
 if __name__=="__main__":
-	app=QApplication(sys.argv)	
+	app=QApplication(sys.argv)
+	jugador=Jugador(40,500,Qt.white,5)
 	Ventana_Duelo=Duelo()
-	Ventana_Duelo.setJugador(0)
+	Ventana_Duelo.setJugador(jugador)
 	Ventana_Duelo.setDificultad(1)
 	#Ventana_Duelo.show()
 	sys.exit(app.exec_())
