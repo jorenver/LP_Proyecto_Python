@@ -83,7 +83,7 @@ class Duelo(QWidget):
 						self.hilo.stop=True
 						self.notificar()
 						print "gano"
-				elif self.dificultad==3:
+				elif self.dificultad==3:#sigue jugando
 					#self.aleatorio=random.choice(range(4))
 					self.aleatorio=3
 					self.anchopintado=498
@@ -93,7 +93,7 @@ class Duelo(QWidget):
 						print "gano"
 	
 	def notificar(self):
-		#le cominuna al jugador que paso el nivel ....falta....
+		#le cominuna al jugador que paso el nivel 
 		self.close()#cierra la ventana
 
 

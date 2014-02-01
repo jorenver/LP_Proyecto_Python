@@ -57,6 +57,7 @@ class EscenarioUno(Escenario):
 		
 	def setJugador(self,jugador):
 		self.jugador=jugador
+		self.jugador.setNivel(1)
 		self.repaint()
 	
 	def reiniciar(self):
@@ -99,7 +100,7 @@ class EscenarioUno(Escenario):
 			self.jugador.retroceder()
 			self.repaint()
 		
-		elif self.mover and e.key()==Qt.Key_Enter and self.ActivarPuente:
+		elif self.mover and e.key()==Qt.Key_X and self.ActivarPuente:
 			self.flaqPalanca=True
 			self.repaint()
 			self.bajarPuente()
@@ -126,11 +127,9 @@ class EscenarioUno(Escenario):
 			self.ActivarPuente=False
 			self.jugador.avanzar()
 			if (x>=825):
-				self.Duelo=Duelo()
-				self.Duelo.setJugador(self.jugador)
-				self.Duelo.setNivelObservador(self)
+				self.Duelo=Duelo(jugador)
+
 				self.mover=False
-		
 		else:
 			self.jugador.avanzar()
 			

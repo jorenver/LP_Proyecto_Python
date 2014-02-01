@@ -35,6 +35,7 @@ class EscenarioDos(Escenario):
 		color=QColor(0,0,155)		
 		self.jugador=Jugador(0,Escenario.dimension_y-self.nivel_piso_y-50,color,10)#posicion inicial del jugador
 		self.jugador.setRadio(50)
+		self.jugador.setNivel(2)
 		self.setWindowTitle("Escenario Dos")
 		self.thread_pintarPasadizo=Hilo(self,Accion.pasadizo)
 		self.estadoEscenario=EstadoEscenario.pasadizoOff
@@ -84,7 +85,7 @@ class EscenarioDos(Escenario):
 			self.jugador.retroceder()
 			self.repaint()	
 
-		if self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
+		if self.jugador.getPosY()>Escenario.dimension_y-self.nivel_piso_y and self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
 			self.mover=False #bloquea el movimiento
 			self.hilo=Hilo(self,Accion.teletransportacion)
 			self.hilo.start()
