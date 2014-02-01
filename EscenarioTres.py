@@ -7,6 +7,7 @@ from time import sleep
 from PyQt4 import QtCore
 import sys
 import math
+from Duelo import *
 
 class EscenarioTres(Escenario):
 
@@ -20,6 +21,7 @@ class EscenarioTres(Escenario):
 		self.hiloSalto=None
 		self.piso1=430
 		self.piso2=290
+		self.Duelo=None
 		self.jugador=Jugador(20,430,Qt.white,5)
 		self.setWindowTitle("Escenario Tres")
 
@@ -50,7 +52,10 @@ class EscenarioTres(Escenario):
 	def keyPressEvent(self,e):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			x=self.jugador.getPosX()
-			if(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
+			if (x>= 850) :
+				self.mover = False
+				self.Duelo=Duelo(self.jugador)
+			elif(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.avanzar()
 				self.jugador.acender(2.65)
 			elif x<=self._iniPendiente or x>=self._finPendiente:
@@ -104,7 +109,14 @@ class HiloCaida(Thread):
 				self.escenario.repaint()
 				sleep(0.25)
 			else:
-				print ("ha perdido")
+				if(self.escenario.jugador.getVidas()==1):
+					print "perdio"
+				else:
+					self.escenario.jugador.disminuirVidas()
+					self.escenario.jugador.setPosX(20)
+					self.escenario.jugador.setPosY(430)
+					self.escenario.repaint()
+					self.escenario.mover=True
 				break
 	
 class HiloSalto(Thread):
