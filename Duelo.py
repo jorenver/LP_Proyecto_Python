@@ -68,16 +68,14 @@ class Duelo(QWidget):
 			else:
 				self.jugador.disminuirVidas()
 				self.repaint()
-				
-				
-				
-				
+				self.close()
+							
 	
 	def keyPressEvent(self,e):
 		if e.key()==QtCore.Qt.Key_X:
 			if (self.hilo!=None):
 				self.hilo.stop=True
-			print "gano"
+			self.close()
 	
 		
 class Barra(Thread):
@@ -94,7 +92,6 @@ class Barra(Thread):
 			if (self.stop):
 				break
 			if(self.duelo.anchopintado<=0):
-				print "perdio"
 				self.duelo.reiniciar()
 				break
 			sleep(0.1)

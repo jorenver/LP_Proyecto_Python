@@ -1,6 +1,7 @@
 from Escenario import *
 from Jugador import*
 from Duelo import *
+from Observer import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from threading import *
@@ -23,7 +24,6 @@ class EscenarioUno(Escenario):
 	def __init__(self,*args):
 		Escenario.__init__(self,*args)
 		self.theta=45   #angulo inicial del puente medido desde la horizontal en sentido contrario a las manecillas del reloj
-		self.ganar=True
 		self.mover=True #bloque el movimiento del jugador
 		self.ActivarPuente=False 
 		self.flaqPalanca=False #mueve la palanca
@@ -58,7 +58,16 @@ class EscenarioUno(Escenario):
 	def setJugador(self,jugador):
 		self.jugador=jugador
 		self.repaint()
+	
+	def reiniciar(self):
+		self.mover=True
+		self.jugador.setPosX(40)
+		self.jugador.setPosY(500)
+		self.Perdio()
+		self.repaint()
 		
+	
+	
 	def pintarJugador(self,painter):
 		center=QPoint(self.jugador.getPosX(),self.jugador.getPosY())
 		pen=QPen(Qt.blue,2,Qt.SolidLine)
@@ -108,8 +117,8 @@ class EscenarioUno(Escenario):
 		if x>=400 and not self.estadoPuente==EstadosPuente.Bajado:
 			self.mover=False
 			# ejecuta el hilo de caida
+			self.hiloC=HiloCaida(self)
 			self.hiloC.start()
-			self.ganar=False
 		elif x>=250 and x<=290:
 			self.jugador.avanzar()
 			self.ActivarPuente=True
@@ -123,6 +132,11 @@ class EscenarioUno(Escenario):
 		
 		else:
 			self.jugador.avanzar()
+			
+	def Perdio(self):
+		if (self.jugador.vidas==0):
+			print("perdiste")
+			self.close()
 		
 			
 class HiloPuente(Thread):
@@ -168,6 +182,9 @@ class HiloCaida(Thread):
 				self.escenario.repaint()
 				sleep(0.25)
 			else:
+				if (self.escenario.jugador.vidas!=0):
+					self.escenario.jugador.disminuirVidas()
+					self.escenario.reiniciar()
 				print ("ha perdido")
 				break
 				
