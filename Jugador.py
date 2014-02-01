@@ -6,6 +6,7 @@ class Jugador:
 		self._posX=x
 		self._posY=y
 		self._color=c
+		self.vidas=3
 		self._velocidad=v
 		self._radio=20
 	
@@ -55,3 +56,14 @@ class Jugador:
 	
 	def setRadio(self,r):
 		self._radio=r
+	
+	def aumentarVida(self):
+		self.vidas+=1
+		
+	def disminuirVidas(self):
+		if (self.vidas!=0):
+			self.vidas-=1
+	
+	def getVidasString(self):
+		return "Vidas: %d"%(self.vidas)
+			
