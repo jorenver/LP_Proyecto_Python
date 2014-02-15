@@ -18,6 +18,15 @@ class Menu(Escenario):
 		Bt_nuevoJ.setGeometry(360,320,200,65)
 		Bt_AcercaDe=QPushButton("Acerca De",self)
 		Bt_AcercaDe.setGeometry(360,450,200,65)
+		self.connect(Bt_nuevoJ, SIGNAL("clicked()"), self.nuevoJuego)
+		self.connect(Bt_AcercaDe, SIGNAL("clicked()"), self.acercaDe)
+ 
+	def nuevoJuego(self):
+		print "Nuevo Juego"
+		
+	def acercaDe(self):
+		print "Acerca De"
+		
 		
 	def paintEvent(self, event):       
 		paint = QPainter()
