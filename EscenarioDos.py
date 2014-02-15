@@ -29,11 +29,12 @@ class EscenarioDos(Escenario):
 	valor=0
 	tam=0
 
-	def __init__(self,*args): #constructor		
+	def __init__(self,jugador,*args): #constructor		
 		Escenario.__init__(self,*args)
 		self.mover=True
-		color=QColor(0,0,155)		
-		self.jugador=Jugador(0,Escenario.dimension_y-self.nivel_piso_y-50,color,10)#posicion inicial del jugador
+		self.jugador=jugador
+		self.jugador.setPosY(Escenario.dimension_y-self.nivel_piso_y-50)
+		self.jugador.setColor(QColor(0,0,155))	
 		self.jugador.setRadio(50)
 		self.jugador.setNivel(2)
 		self.setWindowTitle("Escenario Dos")
@@ -74,15 +75,29 @@ class EscenarioDos(Escenario):
 
 	def keyPressEvent(self,e):
 		if self.mover==True and e.key()==QtCore.Qt.Key_Right:
-			self.jugador.avanzar()
+			
+			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
+				self.jugador.avanzar()	
+			else:
+				if self.jugador.getPosX()< (self.tam+self.nivel_piso_x)-50:
+					self.jugador.avanzar()
+
 			self.repaint()# se vuelve a pintar el circulo con las nuevas coordenadas
+			
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff and self.jugador.getPosX()>self.tam-self.jugador.getRadio()/2: #si el pasadizo esta cerrado jugador se cae al piso dos
 					self.my_thread=Hilo(self,Accion.caida)
 					self.mover=False #Bloquea el movimiento
 					self.my_thread.start()
 
 		if self.mover==True and e.key()==QtCore.Qt.Key_Left:
-			self.jugador.retroceder()
+
+			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
+				self.jugador.retroceder()
+
+			else:
+				if self.jugador.getPosX()>self.tam:
+					self.jugador.retroceder()
+
 			self.repaint()	
 
 		if self.jugador.getPosY()>Escenario.dimension_y-self.nivel_piso_y and self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
@@ -90,10 +105,12 @@ class EscenarioDos(Escenario):
 			self.hilo=Hilo(self,Accion.teletransportacion)
 			self.hilo.start()
 
-		if self.jugador.getPosX()== self.tam+self.nivel_piso_x+2*self.tam-30 and e.key()==QtCore.Qt.Key_Y:
+
+		if self.jugador.getPosX()== self.tam+self.nivel_piso_x+2*self.tam-50 and e.key()==QtCore.Qt.Key_X:
 			self.mover=False #bloquea el movimiento
 			self.hilo=Hilo(self,Accion.salto)
 			self.hilo.start()
+		
 		if self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x:
 			self.duelo=Duelo(self.jugador)
 
@@ -149,8 +166,6 @@ class Hilo(threading.Thread):
 				break
 
 	def jugadorSaltar(self):
-		velocidad_inicial_y=5
-		velocidad_inicial_x=5
 		tiempo=0.1
 		posicionX=self.escenarioDos.jugador.getPosX()
 		posicionY=self.escenarioDos.jugador.getPosY()
@@ -158,20 +173,20 @@ class Hilo(threading.Thread):
 		while True:	
 			if flag==1:
 				posicionX=posicionX+20
-				posicionY=posicionY-velocidad_inicial_y*tiempo-0.5*9.8*tiempo
+				posicionY=posicionY-0.5*9.8*tiempo
 				if posicionY<250:
 					flag=0
 			else:
 				posicionX=posicionX+20
-				posicionY=posicionY+velocidad_inicial_y*tiempo+0.5*9.8*tiempo
+				posicionY=posicionY+0.5*9.8*tiempo
 				if posicionY>=self.escenarioDos.dimension_y-self.escenarioDos.nivel_piso_y-50:
-					posicionY=posicionY-9
-					posicionX=posicionX-9
+					posicionY=posicionY-5
+					posicionX=posicionX-5
 			self.escenarioDos.jugador.setPosX(posicionX)
 			self.escenarioDos.jugador.setPosY(posicionY)
 			self.escenarioDos.repaint()
-			tiempo+=0.1
-			if tiempo>1.6: 
+			tiempo+=0.2
+			if tiempo>3.3: 
 				self.escenarioDos.mover=True
 				break
 			time.sleep(0.01)
@@ -202,8 +217,7 @@ class Hilo(threading.Thread):
 
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
-	#hilo=Hilo(0,10)
-	#hilo.start()
-	escenario_Dos=EscenarioDos()
+	jugador=Jugador(0,0,Qt.white,5)
+	escenario_Dos=EscenarioDos(jugador)
 	escenario_Dos.show()
 	sys.exit(app.exec_())
