@@ -67,6 +67,9 @@ class Jugador:
 	
 	def getVidasString(self):
 		return "Vidas: %d"%(self.vidas)
+		
+	def getVidas(self):
+		return (self.vidas)
 
 	def getNivel(self):
 		return self.nivel_actual
