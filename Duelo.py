@@ -16,9 +16,9 @@ class Duelo(QWidget):
 	
 	def __init__(self,jugador,*args):
 		QWidget.__init__(self,*args)
+		self.imagenes=[QImage("flecha_abajo","png"),QImage("flecha_arriba","png"),QImage("flecha_derecha","png"),QImage("flecha_izquierda","png")]
 		contenedor=QVBoxLayout()
-		#self.aleatorio=random.choice(range(4))
-		self.aleatorio=0
+		self.aleatorio=random.choice(range(4))
 		self.setGeometry(50,50,self.dimension_x,self.dimension_y)
 		self.setLayout(contenedor)
 		self.jugador=jugador
@@ -27,6 +27,8 @@ class Duelo(QWidget):
 		self.anchopintado=498
 		self.hilo=Barra(self)
 		self.hilo.start()
+		self.pintar=Pintar(self)
+		self.pintar.start()
 		self.setWindowTitle("Batalla")
 		self.show()
 
@@ -49,15 +51,12 @@ class Duelo(QWidget):
 		paint.setBrush(Qt.red)
 		paint.drawRect(51,51,self.anchopintado,28)
 		self.infoJugador(paint)
-		#self.crearImagenes(paint)
+		punto=QPoint(150,150)
+		imagen=self.imagenes[self.aleatorio]
+		paint.drawImage(punto,imagen)
 		paint.end()
 
-	def crearImagenes(self,painter):
-		if(self.jugador!=None):
-			self.imagenes=[QImage("flecha_abajo","png"),QImage("flecha_arriba","png"),QImage("flecha_derecha","png"),QImage("flecha_izquierda","png")]
-			imagen=self.imagenes[self.aleatorio]
-			punto=QPoint(150,150)
-			painter.drawImage(punto,imagen)
+			
 
 	def infoJugador(self,painter):
 		if (self.jugador!=None):
@@ -109,18 +108,24 @@ class Barra(Thread):
 			if self.duelo.anchopintado<=0:
 				self.duelo.anchopintado=498
 				self.duelo.jugador.disminuirVidas()
-				self.duelo.repaint()
 				if self.duelo.jugador.vidas==0:	
 					self.duelo.anchopintado=0
-					self.duelo.repaint()
 					break
 			else:
 				self.duelo.anchopintado-=5
-				self.duelo.repaint()
 			sleep(0.1)
-			
-			if self.stop:
-				break
+			#if self.stop:
+			#	break
+				
+				
+class Pintar(Thread):
+	def __init__(self,duel):
+		Thread.__init__(self)
+		self.duelo=duel
+	def run(self):
+		while(True):
+			self.duelo.repaint()
+			sleep(0.1)
 		
 				
 if __name__=="__main__":
