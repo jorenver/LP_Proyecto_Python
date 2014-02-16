@@ -16,9 +16,9 @@ class Duelo(QWidget):
 	
 	def __init__(self,jugador,*args):
 		QWidget.__init__(self,*args)
-		self.imagenes=[QImage("flecha_abajo","png"),QImage("flecha_arriba","png"),QImage("flecha_derecha","png"),QImage("flecha_izquierda","png")]
+		self.imagenes=[QImage("accion","png"),QImage("flecha_derecha","png"),QImage("flecha_izquierda","png")]
 		contenedor=QVBoxLayout()
-		self.aleatorio=random.choice(range(4))
+		self.aleatorio=random.choice(range(3))
 		self.setGeometry(50,50,self.dimension_x,self.dimension_y)
 		self.setLayout(contenedor)
 		self.jugador=jugador
@@ -67,29 +67,38 @@ class Duelo(QWidget):
 			painter.drawText (area, Qt.AlignCenter, text)   
 	
 	def keyPressEvent(self,e):
-		if e.key()==QtCore.Qt.Key_X:#si presiona x completa la prueba
-			self.pruebasCompletadas+=1
-			if (self.hilo!=None):
-				if self.dificultad==1: #si completa la primera prueba jugador gano
-					self.hilo.stop=True
-					self.notificar()
-					print "gano"
-				elif self.dificultad==2: #sigue jugando
-					#self.aleatorio=random.choice(range(4))#se genera otro aleatorio para generar otra imagen
-					#self.aleatorio=2
-					self.anchopintado=498
-					if self.pruebasCompletadas==2:
-						self.hilo.stop=True
-						self.notificar()
-						print "gano"
-				elif self.dificultad==3:#sigue jugando
-					#self.aleatorio=random.choice(range(4))
-					self.aleatorio=3
-					self.anchopintado=498
-					if self.pruebasCompletadas==3:
-						self.hilo.stop=True
-						self.notificar()
-						print "gano"
+		if e.key()==QtCore.Qt.Key_Right and self.aleatorio==1:
+			self.anchopintado=498
+			if (self.dificultad>1):
+				self.aleatorio=random.choice(range(3))
+				self.dificultad-=1
+			else:
+				self.hilo.stop=True
+				self.pintar.stop=True
+				print "gano"
+				self.notificar()
+		if e.key()==QtCore.Qt.Key_Left and self.aleatorio==2:
+			self.anchopintado=498
+			if (self.dificultad>1):
+				self.aleatorio=random.choice(range(3))
+				self.dificultad-=1
+			else:
+				self.hilo.stop=True
+				self.pintar.stop=True
+				print "gano"
+				self.notificar()
+		if e.key()==QtCore.Qt.Key_X and self.aleatorio==0:
+			self.anchopintado=498
+			if (self.dificultad>1):
+				self.aleatorio=random.choice(range(3))
+				self.dificultad-=1
+			else:
+				self.hilo.stop=True
+				self.pintar.stop=True
+				print "gano"
+				self.notificar()
+	
+	
 	
 	def notificar(self):
 		#le cominuna al jugador que paso el nivel 
@@ -114,18 +123,26 @@ class Barra(Thread):
 			else:
 				self.duelo.anchopintado-=5
 			sleep(0.1)
-			#if self.stop:
-			#	break
+			if self.stop:
+				break
+			if self.duelo.jugador.getVidas()==0:
+				print "pierde"
+				break
 				
 				
 class Pintar(Thread):
 	def __init__(self,duel):
 		Thread.__init__(self)
 		self.duelo=duel
+		self.stop=False
 	def run(self):
 		while(True):
 			self.duelo.repaint()
 			sleep(0.1)
+			if self.stop:
+				break
+			if self.duelo.jugador.getVidas()==0:
+				break
 		
 				
 if __name__=="__main__":
