@@ -16,13 +16,14 @@ class EscenarioTres(Escenario):
 		self.mover=True #sirve para saber si el jugador se puede mover
 		self.todoTerreno=False
 		self._iniPendiente=500
-		self._finPendiente=755
+		self._finPendiente=820
 		self.hiloCaida=None
 		self.hiloSalto=None
 		self.piso1=430
 		self.piso2=290
 		self.Duelo=None
 		self.jugador=Jugador(20,430,Qt.white,5)
+		self.jugador.setNivel(3)
 		self.setWindowTitle("Escenario Tres")
 
 	def dibujarCofres(self,paint):
@@ -36,7 +37,7 @@ class EscenarioTres(Escenario):
 		paint.setRenderHint(QPainter.Antialiasing)
 		paint.setBrush(Qt.white) # cambiar el color
 		paint.drawRect(event.rect())
-		imagen=QImage("fondo3","jpg")
+		imagen=QImage("Fondo_Escenario_Tres","png")
 		center=QPoint(0,0)
 		paint.drawImage(center,imagen)
 		self.dibujarCofres(paint)
@@ -143,7 +144,6 @@ class HiloSalto(Thread):
 			self.escenario.jugador.setPosY(yo)
 			self.escenario.jugador.setPosX(xo)
 			self.escenario.repaint()
-			print yo ," ", y
 			sleep(0.25)
 
 	

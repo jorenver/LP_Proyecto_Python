@@ -13,11 +13,13 @@ class Accion:
 	caida=1
 	salto=2
 	teletransportacion=3
+	caidaLibre=4
 
 class EstadoEscenario:	
 	pasadizoOff=0
 	pasadizoOn=1	
 	pisoTres=2
+	pisoCuatro=3
 
 
 class EscenarioDos(Escenario):
@@ -51,23 +53,22 @@ class EscenarioDos(Escenario):
 		self.dibujarPisos(paint)
 		paint.setBrush(self.jugador.getColor())
 		paint.drawEllipse(self.jugador.getPosX(),self.jugador.getPosY(),self.jugador.getRadio(),self.jugador.getRadio())
-		paint.setBrush(Qt.green)
-		paint.drawRect(self.tam,Escenario.dimension_y-self.nivel_piso_y,self.thread_pintarPasadizo.valor_X,10)#rectangulo que se mueve
+		paint.setBrush(Qt.gray)
+		paint.drawRect(self.tam,Escenario.dimension_y-self.nivel_piso_y,self.thread_pintarPasadizo.valor_X,5)#rectangulo que se mueve
 		paint.end()
 
 	def dibujarPisos(self,painter):
 		self.tam=125 #ancho del piso
 		valor_X=0 
 		valor_Y=0
-		pisoUno=QRect(0,Escenario.dimension_y-self.nivel_piso_y,self.tam,self.nivel_piso_y)
-		pisoDos=QRect(self.tam,Escenario.dimension_y-20,self.nivel_piso_x,20)
-		pisoTres=QRect(self.tam+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y,2*self.tam,self.nivel_piso_y)#piso tres es dos veces mas grande que piso Uno
-		pisoCuatro=QRect(3*self.tam+self.nivel_piso_x+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y,2*self.tam,self.nivel_piso_y)#piso cuatro es dos veces mas grande que piso Uno
-		painter.setBrush(Qt.green)
-		painter.drawRect(pisoUno)
-		painter.drawRect(pisoDos)
-		painter.drawRect(pisoTres)
-		painter.drawRect(pisoCuatro)
+		pisoUno=QImage("pisoUno","png")
+		pisoDos=QImage("pisoDos","png")
+		pisoTres=QImage("pisoTres","png")
+		pisoCuatro=QImage("pisoTres","png")
+		painter.drawImage(QPoint(0,Escenario.dimension_y-self.nivel_piso_y),pisoUno)
+		painter.drawImage(QPoint(self.tam,Escenario.dimension_y-20,),pisoDos)
+		painter.drawImage(QPoint(self.tam+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y),pisoTres)
+		painter.drawImage(QPoint(3*self.tam+self.nivel_piso_x+self.nivel_piso_x,Escenario.dimension_y-self.nivel_piso_y),pisoCuatro)
 		#cajas de habilidad
 		painter.setBrush(Qt.red)
 		painter.drawRect(self.tam,Escenario.dimension_y-20-20,30,20)
@@ -100,20 +101,25 @@ class EscenarioDos(Escenario):
 
 			self.repaint()	
 
-		if self.jugador.getPosY()>Escenario.dimension_y-self.nivel_piso_y and self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
+		if self.mover==True and self.jugador.getPosY()>Escenario.dimension_y-self.nivel_piso_y and self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
 			self.mover=False #bloquea el movimiento
 			self.hilo=Hilo(self,Accion.teletransportacion)
 			self.hilo.start()
 
-
-		if self.jugador.getPosX()== self.tam+self.nivel_piso_x+2*self.tam-50 and e.key()==QtCore.Qt.Key_X:
+		if self.mover==True and self.jugador.getPosX()== self.tam+self.nivel_piso_x+2*self.tam-50 and e.key()==QtCore.Qt.Key_X:
 			self.mover=False #bloquea el movimiento
 			self.hilo=Hilo(self,Accion.salto)
 			self.hilo.start()
 		
-		if self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x:
-			self.duelo=Duelo(self.jugador)
+		if self.mover==True and self.jugador.getPosX()>self.tam+self.nivel_piso_x+2*self.tam-self.jugador.getRadio()/2 and self.estadoEscenario==EstadoEscenario.pisoTres :
+			self.mover=False #bloquea el movimiento
+			self.hilo=Hilo(self,Accion.caidaLibre)
+			self.hilo.start()
 
+		if self.mover==True and self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x:
+			self.duelo=Duelo(self.jugador)
+			self.mover=False
+			
 
 	def  activarPasadizo(self):
 		self.mover==False #bloquea el movimiento
@@ -134,11 +140,14 @@ class Hilo(threading.Thread):
 		if self.accion==Accion.pasadizo:#pasadizo
 			self.pintarPasadizo()
 		elif self.accion==Accion.caida:# jugador se cae
-			self.jugadorCaida()
+			self.jugadorCaida(80)
 		elif self.accion==Accion.salto: #jugador salta
 			self.jugadorSaltar()
 		elif self.accion==Accion.teletransportacion: # teletransportacion
 			self.jugadorTeletransportacion()
+		elif self.accion==Accion.caidaLibre: #cae
+			self.jugadorCaida(0)
+
 
 	def pintarPasadizo(self):
 		self.valor_X=0
@@ -151,7 +160,8 @@ class Hilo(threading.Thread):
 				self.escenarioDos.mover=True#el pasadizo se ha dibujado por completo entonces el jugador se puede mover
 				break
 
-	def jugadorCaida(self):
+
+	def jugadorCaida(self,y):
 		self.valor_X=self.escenarioDos.jugador.getPosX()
 		self.valor_Y=self.escenarioDos.jugador.getPosY()
 		while True:
@@ -161,9 +171,11 @@ class Hilo(threading.Thread):
 			self.escenarioDos.jugador.setPosY(self.valor_Y)
 			time.sleep(0.25)
 			self.escenarioDos.repaint()
-			if self.valor_Y>self.escenarioDos.dimension_y-80:
-				self.escenarioDos.activarPasadizo()
+			if self.valor_Y>self.escenarioDos.dimension_y-y:
+				if y>0:
+					self.escenarioDos.activarPasadizo()
 				break
+
 
 	def jugadorSaltar(self):
 		tiempo=0.1
@@ -188,6 +200,7 @@ class Hilo(threading.Thread):
 			tiempo+=0.2
 			if tiempo>3.3: 
 				self.escenarioDos.mover=True
+				self.escenarioDos.estadoEscenario=EstadoEscenario.pisoCuatro
 				break
 			time.sleep(0.01)
 
