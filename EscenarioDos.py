@@ -37,11 +37,11 @@ class EscenarioDos(Escenario):
 		self.jugador=jugador
 		self.jugador.setPosX(40)
 		self.jugador.setPosY(Escenario.dimension_y-self.nivel_piso_y-50)
-		self.jugador.setColor(QColor(0,0,155))	
+		self.jugador.setColor(Qt.blue)
 		self.jugador.setRadio(50)
 		self.jugador.setNivel(2)
+		self.thread_pintarPasadizo=None
 		self.setWindowTitle("Escenario Dos")
-		self.thread_pintarPasadizo=Hilo(self,Accion.pasadizo)
 		self.estadoEscenario=EstadoEscenario.pasadizoOff
 		self.observer=observer
 		self.show()
@@ -57,7 +57,8 @@ class EscenarioDos(Escenario):
 		paint.setBrush(self.jugador.getColor())
 		paint.drawEllipse(self.jugador.getPosX(),self.jugador.getPosY(),self.jugador.getRadio(),self.jugador.getRadio())
 		paint.setBrush(Qt.gray)
-		paint.drawRect(self.tam,Escenario.dimension_y-self.nivel_piso_y,self.thread_pintarPasadizo.valor_X,5)#rectangulo que se mueve
+		if self.thread_pintarPasadizo!=None:
+			paint.drawRect(self.tam,Escenario.dimension_y-self.nivel_piso_y,self.thread_pintarPasadizo.valor_X,5)#rectangulo que se mueve
 		paint.end()
 
 	def dibujarPisos(self,painter):
@@ -77,42 +78,52 @@ class EscenarioDos(Escenario):
 		painter.drawRect(self.tam,Escenario.dimension_y-20-20,30,20)
 		painter.drawRect(self.tam+self.nivel_piso_x+2*self.tam-30,Escenario.dimension_y-self.nivel_piso_y-20,30,20)
 
-	def keyPressEvent(self,e):
-		if self.mover==True and e.key()==QtCore.Qt.Key_Right:
-			
+
+	def derecha(self):
+		if self.mover==True: 
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
-				self.jugador.avanzar()	
+					self.jugador.avanzar()	
 			else:
 				if self.jugador.getPosX()< (self.tam+self.nivel_piso_x)-50:
 					self.jugador.avanzar()
 
 			self.repaint()# se vuelve a pintar el circulo con las nuevas coordenadas
-			
+				
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff and self.jugador.getPosX()>self.tam-self.jugador.getRadio()/2: #si el pasadizo esta cerrado jugador se cae al piso dos
 					self.my_thread=Hilo(self,Accion.caida)
 					self.mover=False #Bloquea el movimiento
 					self.my_thread.start()
 
-		if self.mover==True and e.key()==QtCore.Qt.Key_Left:
-
+	def izquierda(self):
+		if self.mover==True:
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
 				self.jugador.retroceder()
-
 			else:
 				if self.jugador.getPosX()>self.tam:
 					self.jugador.retroceder()
-
 			self.repaint()	
 
-		if self.mover==True and self.jugador.getPosY()>Escenario.dimension_y-self.nivel_piso_y and self.jugador.getPosX()< self.tam+30 and e.key()==QtCore.Qt.Key_X:
-			self.mover=False #bloquea el movimiento
-			self.hilo=Hilo(self,Accion.teletransportacion)
-			self.hilo.start()
+	def accion(self):
+		if self.mover==True:
+			if self.jugador.getPosY()>Escenario.dimension_y-self.nivel_piso_y and self.jugador.getPosX()< self.tam+30 :
+				self.mover=False #bloquea el movimiento
+				self.hilo=Hilo(self,Accion.teletransportacion)
+				self.hilo.start()
+			elif self.jugador.getPosX()>self.tam+self.nivel_piso_x+2*self.tam-50 :
+				self.mover=False #bloquea el movimiento
+				self.hilo=Hilo(self,Accion.salto)
+				self.hilo.start()
 
-		if self.mover==True and self.jugador.getPosX()== self.tam+self.nivel_piso_x+2*self.tam-50 and e.key()==QtCore.Qt.Key_X:
-			self.mover=False #bloquea el movimiento
-			self.hilo=Hilo(self,Accion.salto)
-			self.hilo.start()
+
+	def keyPressEvent(self,e):
+		if e.key()==QtCore.Qt.Key_Right:
+			self.derecha()
+
+		if e.key()==QtCore.Qt.Key_Left:
+			self.izquierda()
+
+		if  e.key()==QtCore.Qt.Key_X:
+			self.accion()			
 		
 		if self.mover==True and self.jugador.getPosX()>self.tam+self.nivel_piso_x+2*self.tam-self.jugador.getRadio()/2 and self.estadoEscenario==EstadoEscenario.pisoTres :
 			self.mover=False #bloquea el movimiento
@@ -128,7 +139,25 @@ class EscenarioDos(Escenario):
 
 	def  activarPasadizo(self):
 		self.mover==False #bloquea el movimiento
+		self.thread_pintarPasadizo=Hilo(self,Accion.pasadizo)
 		self.thread_pintarPasadizo.start()
+
+	def reiniciar(self):
+		if (self.jugador.getVidas()!=0):			
+			print self.jugador.getVidasString()
+			self.jugador.setPosX(40)
+			self.jugador.setPosY(Escenario.dimension_y-self.nivel_piso_y-50)
+			self.estadoEscenario=EstadoEscenario.pasadizoOff
+			self.thread_pintarPasadizo.valor_X=0
+			self.mover=True
+			self.repaint()
+		else:
+			self.mover=False
+			self.perder()
+
+	def perder(self):
+		print "perdio"
+		self.close()
 
 	def detenerHilos(self):
 		pass
@@ -154,8 +183,9 @@ class Hilo(threading.Thread):
 			self.jugadorSaltar()
 		elif self.accion==Accion.teletransportacion: # teletransportacion
 			self.jugadorTeletransportacion()
-		elif self.accion==Accion.caidaLibre: #cae
+		elif self.accion==Accion.caidaLibre: #cae y muere
 			self.jugadorCaida(0)
+			self.escenarioDos.reiniciar()
 
 
 	def pintarPasadizo(self):
@@ -183,6 +213,8 @@ class Hilo(threading.Thread):
 			if self.valor_Y>self.escenarioDos.dimension_y-y:
 				if y>0:
 					self.escenarioDos.activarPasadizo()
+				else:
+					self.escenarioDos.jugador.disminuirVidas()
 				break
 
 
@@ -240,6 +272,6 @@ class Hilo(threading.Thread):
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
 	jugador=Jugador(0,0,Qt.white,5)
-	escenario_Dos=EscenarioDos(jugador)
-	escenario_Dos.show()
+	escenario=EscenarioDos(jugador,None)
+	escenario.show()
 	sys.exit(app.exec_())
