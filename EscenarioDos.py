@@ -14,6 +14,7 @@ class Accion:
 	salto=2
 	teletransportacion=3
 	caidaLibre=4
+	caidaLibreD=5
 
 class EstadoEscenario:	
 	pasadizoOff=0
@@ -82,7 +83,7 @@ class EscenarioDos(Escenario):
 	def derecha(self):
 		if self.mover==True: 
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
-					self.jugador.avanzar()	
+				self.jugador.avanzar()	
 			else:
 				if self.jugador.getPosX()< (self.tam+self.nivel_piso_x)-50:
 					self.jugador.avanzar()
@@ -93,6 +94,8 @@ class EscenarioDos(Escenario):
 					self.my_thread=Hilo(self,Accion.caida)
 					self.mover=False #Bloquea el movimiento
 					self.my_thread.start()
+			if self.estadoEscenario==EstadoEscenario.pisoCuatro:
+				self.jugador.avanzar()	
 
 	def izquierda(self):
 		if self.mover==True:
@@ -130,12 +133,16 @@ class EscenarioDos(Escenario):
 			self.hilo=Hilo(self,Accion.caidaLibre)
 			self.hilo.start()
 
-		if self.mover==True and self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x:
+		if self.mover==True and self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x+75:
 			self.observer.update2()
 			self.mover=False
 			self.detenerHilos()
 			self.close()
-			
+
+		if self.mover==True and self.estadoEscenario==EstadoEscenario.pisoCuatro and self.jugador.getPosX()<3*self.tam+self.nivel_piso_x+self.nivel_piso_x-self.jugador.getRadio()/2:
+			self.my_thread=Hilo(self,Accion.caidaLibreD)
+			self.mover=False #Bloquea el movimiento
+			self.my_thread.start()
 
 	def  activarPasadizo(self):
 		self.mover==False #bloquea el movimiento
@@ -178,13 +185,16 @@ class Hilo(threading.Thread):
 		if self.accion==Accion.pasadizo:#pasadizo
 			self.pintarPasadizo()
 		elif self.accion==Accion.caida:# jugador se cae
-			self.jugadorCaida(80)
+			self.jugadorCaida(80,1)
 		elif self.accion==Accion.salto: #jugador salta
 			self.jugadorSaltar()
 		elif self.accion==Accion.teletransportacion: # teletransportacion
 			self.jugadorTeletransportacion()
 		elif self.accion==Accion.caidaLibre: #cae y muere
-			self.jugadorCaida(0)
+			self.jugadorCaida(0,1)
+			self.escenarioDos.reiniciar()
+		elif self.accion==Accion.caidaLibreD:#cae y muere
+			self.jugadorCaida(0,-1)
 			self.escenarioDos.reiniciar()
 
 
@@ -200,11 +210,11 @@ class Hilo(threading.Thread):
 				break
 
 
-	def jugadorCaida(self,y):
+	def jugadorCaida(self,y,dir):
 		self.valor_X=self.escenarioDos.jugador.getPosX()
 		self.valor_Y=self.escenarioDos.jugador.getPosY()
 		while True:
-			self.valor_X=self.valor_X+20
+			self.valor_X=self.valor_X+(20)*dir
 			self.valor_Y=self.valor_Y+40
 			self.escenarioDos.jugador.setPosX(self.valor_X)
 			self.escenarioDos.jugador.setPosY(self.valor_Y)
