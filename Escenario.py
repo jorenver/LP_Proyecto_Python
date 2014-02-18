@@ -13,6 +13,7 @@ class Escenario(QWidget):
 			QWidget.__init__(self,*args)
 			contenedor=QVBoxLayout()
 			self.setGeometry(50,50,self.dimension_x,self.dimension_y)
+			self.setWindowIcon(QIcon("icono.png"))
 			self.setLayout(contenedor)
 		
 	def setObserver(self,observer):
