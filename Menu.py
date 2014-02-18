@@ -39,9 +39,11 @@ class Menu(Escenario,NeuroListener):
 		
 	
 	def update(self, Escenario):
+		self.State=0
 		self.EscenarioActual=Escenario
 		
 	def update2(self):
+		self.State=1
 		self.Duelo.setJugador(self.Jugador)
 		self.Duelo.comenzar(self.Jugador)
 		
@@ -54,18 +56,18 @@ class Menu(Escenario,NeuroListener):
 		paint.end()
 		
 	def derecha(self):
-		if(self.state==0):
+		if(self.EscenarioActual!=None and self.state==0):
 			self.EscenarioActual.derecha()
 		elif(self.state==1):
 			self.Duelo.derecha()
 	def izquierda(self):
-		if(self.state==0):
+		if(self.EscenarioActual!=None and self.state==0):
 			self.EscenarioActual.izquierda()
 		elif(self.state==1):
 			self.Duelo.izquierda()
 	
 	def accion(self):
-		if(self.state==0):
+		if(self.EscenarioActual!=None and self.state==0):
 			self.EscenarioActual.accion()
 		elif(self.state==1):
 			self.Duelo.accion()

@@ -103,7 +103,7 @@ class NeuroListener(Thread):
 					print "%10.3f New EmoState from user %d ...\r" %(timestamp,userID.value)
 					self.logEmoState(userID,eState)   
 			elif state != 0x0600:
-				print "Internal error in Emotiv Engine ! "
+			#	print "Internal error in Emotiv Engine ! "
 				time.sleep(0.1)
 		self.desconectar()
 

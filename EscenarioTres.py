@@ -94,6 +94,48 @@ class EscenarioTres(Escenario):
 				self.jugador.setColor(Qt.black)
 				self.repaint()
 
+	def derecha(self):
+		if self.mover:
+			x=self.jugador.getPosX()
+			if (x>= 850) :
+				self.mover = False
+				self.observer.update2()
+			elif(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
+				self.jugador.avanzar()
+				self.jugador.acender(2.65)
+			elif x<=self._iniPendiente or x>=self._finPendiente:
+				self.jugador.avanzar()
+			
+			if x>=100 and x<=200:
+				self.hiloCaida=HiloCaida(self,1)
+				self.hiloCaida.start()
+			else:
+				self.repaint()
+	
+	def izquierda(self):
+		if self.mover:
+			x=self.jugador.getPosX()
+			if(x>self._iniPendiente and x<self._finPendiente):
+				self.jugador.retroceder()
+				self.jugador.descender(2.65)
+			elif x<=self._iniPendiente or x>=self._finPendiente:
+				self.jugador.retroceder()
+			if x>=200 and x<=300:
+				self.hiloCaida=HiloCaida(self,-1)
+				self.hiloCaida.start()
+			else:
+				self.repaint()
+		
+	def accion(self):
+		if self.mover:
+			if(self.jugador.getPosX()>=40 and self.jugador.getPosX()<=75):
+				self.hiloSalto=HiloSalto(self)
+				self.hiloSalto.start()
+			if(self.jugador.getPosX()>=370 and self.jugador.getPosX()<=420):
+				self.todoTerreno=True
+				self.jugador.setColor(Qt.black)
+				self.repaint()
+	
 	def detenerHilos(self):
 		pass
 					

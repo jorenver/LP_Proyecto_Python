@@ -66,11 +66,11 @@ class EscenarioUno(Escenario):
 		self.repaint()
 	
 	def reiniciar(self):
-		self.mover=True
 		self.jugador.setPosX(40)
 		self.jugador.setPosY(500)
 		self.Perdio()
 		self.repaint()
+		self.mover=True
 		
 	
 	
@@ -147,9 +147,9 @@ class EscenarioUno(Escenario):
 			self.ActivarPuente=False
 			self.jugador.avanzar()
 			if (x>=825):
-				self.observer.update2()
-				self.close()
 				self.mover=False
+				self.close()
+				self.observer.update2()
 		else:
 			self.jugador.avanzar()
 			

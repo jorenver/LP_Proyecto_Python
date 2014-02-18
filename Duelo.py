@@ -27,11 +27,14 @@ class Duelo(QWidget):
 		self.ancho=500
 		self.anchopintado=498
 		self.setWindowTitle("Batalla")
+		self.mover=False
+		self.cont=1
 		self.observer=observer
 		
 	def comenzar(self,jugador):
 		self.setJugador(self.jugador)
 		self.anchopintado=498
+		#self.presentar()
 		self.hilo=Barra(self)
 		self.pintar=Pintar(self)
 		self.hilo.start()
@@ -113,8 +116,6 @@ class Duelo(QWidget):
 				print "gano"
 				self.terminar()
 	
-	
-	
 	def notificar(self):
 		#le cominuna al jugador que paso el nivel 
 		self.close()#cierra la ventana
@@ -158,8 +159,8 @@ class Pintar(Thread):
 				break
 			if self.duelo.jugador.getVidas()==0:
 				break
+
 		
-				
 if __name__=="__main__":
 	app=QApplication(sys.argv)
 	jugador=Jugador(40,500,Qt.white,5)
