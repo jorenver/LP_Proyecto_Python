@@ -6,6 +6,7 @@ from ctypes import *
 from numpy import *
 import time
 from ctypes.util import find_library
+from threading import *
 libEDK = cdll.LoadLibrary(".\\edk.dll")
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -47,83 +48,69 @@ option      = c_int(0)
 state     = c_int(0)
 
 
+
     
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+class NeuroListener(Thread):
 
-def logEmoState(userID,eState):
-    print "informacion\n"
-    #print ES_GetTimeFromStart(eState),",",            
-    print "id Usuario: ",userID.value,"\n",
-    #print ES_GetWirelessSignalStatus(eState),",",
-    #Cognitiv Suite results
-    print "\t\tAccion Current\n"
-    print "Accion: ",ES_CognitivGetCurrentAction(eState),"\n"
-    if(ES_CognitivGetCurrentAction(eState)==0x0020):
-       izquierda()
-    if(ES_CognitivGetCurrentAction(eState)==0x0002):
-       push()	   
-    if(ES_CognitivGetCurrentAction(eState)==0x0040):
-       derecha()
-    if(ES_CognitivGetCurrentAction(eState)==0x0001):
-       neutro()
-    print ES_CognitivGetCurrentActionPower(eState)
-    print "poder: ",ES_CognitivGetCurrentActionPower(eState),"\n"
-    print '\n'
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	def __init__(self):
+		Thread.__init__(self)
+		
+	def logEmoState(self,userID,eState):
+		print "Accion: ",ES_CognitivGetCurrentAction(eState),"\n"
+		if(ES_CognitivGetCurrentAction(eState)==0x0020):
+		   self.izquierda()
+		if(ES_CognitivGetCurrentAction(eState)==0x0002):
+		   self.accion()	   
+		if(ES_CognitivGetCurrentAction(eState)==0x0040):
+		   self.derecha()
+		if(ES_CognitivGetCurrentAction(eState)==0x0001):
+		   self.neutro()
+		print ES_CognitivGetCurrentActionPower(eState)
+		print "poder: ",ES_CognitivGetCurrentActionPower(eState),"\n"
+		print '\n'
+	#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def izquierda():
-	print "izquierda\n"
+	def izquierda(self):
+		print "izquierda\n"
+		
+	def derecha(self):
+		print "derecha\n"
+		
+	def neutro(self):
+		print "neutral\n"
+		
+	def accion(self):
+		print "push\n"
+
+	def conectar(self):
+		if  libEDK.EE_EngineRemoteConnect("127.0.0.1",3008)!=0:
+			print "Emotiv Engine start up failed."
+			eProfile  = libEDK.EE_ProfileEventCreate()
+			libEDK.EE_GetBaseProfile(eProfile)
+			libEDK.EE_GetUserProfile(userID, eProfile)
 	
-def derecha():
-	print "derecha\n"
-	
-def neutro():
-	print "neutral\n"
-	
-def push():
-	print "push\n"
+	def run(self):
+		self.conectar()
+		while (1):
+			state = libEDK.EE_EngineGetNextEvent(eEvent)
+			if state == 0:
+				eventType = libEDK.EE_EmoEngineEventGetType(eEvent)
+				libEDK.EE_EmoEngineEventGetUserId(eEvent, user)
+				if eventType == 64: #libEDK.EE_Event_enum.EE_EmoStateUpdated
+					libEDK.EE_EmoEngineEventGetEmoState(eEvent,eState)
+					timestamp = ES_GetTimeFromStart(eState)
+					print "%10.3f New EmoState from user %d ...\r" %(timestamp,userID.value)
+					self.logEmoState(userID,eState)   
+			elif state != 0x0600:
+				print "Internal error in Emotiv Engine ! "
+				time.sleep(0.1)
+		self.desconectar()
 
-
-
-
-#------------------------------------------------------------------------------------------------------------------------------------------------------------
-print "Comienza"
-
-#if libEDK.EE_EngineConnect("Emotiv Systems-5") != 0:
-if  libEDK.EE_EngineRemoteConnect("127.0.0.1",3008)!=0:
-	print "Emotiv Engine start up failed."
-	eProfile  = libEDK.EE_ProfileEventCreate()
-	libEDK.EE_GetBaseProfile(eProfile)
-	libEDK.EE_GetUserProfile(userID, eProfile)
-else:
-	print "else else else"
-    
-while (1):
-    state = libEDK.EE_EngineGetNextEvent(eEvent)
-    #print "entre al while"
-    if state == 0:
-        #print "*********"
-        eventType = libEDK.EE_EmoEngineEventGetType(eEvent)
-        libEDK.EE_EmoEngineEventGetUserId(eEvent, user)
-        if eventType == 64: #libEDK.EE_Event_enum.EE_EmoStateUpdated
-            libEDK.EE_EmoEngineEventGetEmoState(eEvent,eState)
-            timestamp = ES_GetTimeFromStart(eState)
-            print "%10.3f New EmoState from user %d ...\r" %(timestamp,userID.value)
-            logEmoState(userID,eState)   
-    elif state != 0x0600:
-        print "Internal error in Emotiv Engine ! "
-        time.sleep(0.1)
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------
-desconectar()
-
-
-def desconectar():
-	libEDK.EE_EngineDisconnect()
-	libEDK.EE_EmoStateFree(eState)
-	libEDK.EE_EmoEngineEventFree(eEvent)
-
-
-
+	def desconectar(self):
+		libEDK.EE_EngineDisconnect()
+		libEDK.EE_EmoStateFree(eState)
+		libEDK.EE_EmoEngineEventFree(eEvent)
 
 
 

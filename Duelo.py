@@ -8,32 +8,47 @@ from PyQt4 import QtCore
 import sys
 import math
 import random
-
+from EscenarioDos import *
+from EscenarioTres import *
 class Duelo(QWidget):
 	dimension_x=600                                        
 	dimension_y=600
 	pruebasCompletadas=0
 	
-	def __init__(self,jugador,*args):
+	def __init__(self,observer,*args):
 		QWidget.__init__(self,*args)
 		self.imagenes=[QImage("accion","png"),QImage("flecha_derecha","png"),QImage("flecha_izquierda","png")]
 		contenedor=QVBoxLayout()
 		self.aleatorio=random.choice(range(3))
 		self.setGeometry(50,50,self.dimension_x,self.dimension_y)
 		self.setLayout(contenedor)
-		self.jugador=jugador
-		self.dificultad=self.jugador.getNivel()
+		self.jugador=None
+		self.dificultad=0
 		self.ancho=500
 		self.anchopintado=498
-		self.hilo=Barra(self)
-		self.hilo.start()
-		self.pintar=Pintar(self)
-		self.pintar.start()
 		self.setWindowTitle("Batalla")
+		self.observer=observer
+		
+	def comenzar(self,jugador):
+		self.setJugador(self.jugador)
+		self.anchopintado=498
+		self.hilo=Barra(self)
+		self.pintar=Pintar(self)
+		self.hilo.start()
+		self.pintar.start()
 		self.show()
+		
+	def terminar(self):
+		if(self.jugador.getNivel()==1):
+			self.observer.update(EscenarioDos(self.jugador,self.observer))
+		elif(self.jugador.getNivel()==2):
+			self.observer.update(EscenarioTres(self.jugador,self.observer))
+		#matar hilos
+		self.close()
 
 	def setJugador(self,jugador):
 		self.jugador=jugador
+		self.dificultad=self.jugador.getNivel()
 	
 	def setDificultad(self,dif):
 		self.dificultad=dif
@@ -76,7 +91,7 @@ class Duelo(QWidget):
 				self.hilo.stop=True
 				self.pintar.stop=True
 				print "gano"
-				self.notificar()
+				self.terminar()
 		if e.key()==QtCore.Qt.Key_Left and self.aleatorio==2:
 			self.anchopintado=498
 			if (self.dificultad>1):
@@ -86,7 +101,7 @@ class Duelo(QWidget):
 				self.hilo.stop=True
 				self.pintar.stop=True
 				print "gano"
-				self.notificar()
+				self.terminar()
 		if e.key()==QtCore.Qt.Key_X and self.aleatorio==0:
 			self.anchopintado=498
 			if (self.dificultad>1):
@@ -96,7 +111,7 @@ class Duelo(QWidget):
 				self.hilo.stop=True
 				self.pintar.stop=True
 				print "gano"
-				self.notificar()
+				self.terminar()
 	
 	
 	

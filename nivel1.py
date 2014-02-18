@@ -21,7 +21,7 @@ class EstadosPuente:
 
 class EscenarioUno(Escenario):
 
-	def __init__(self,jugador,*args):
+	def __init__(self,jugador,observer,*args):
 		Escenario.__init__(self,*args)
 		self.theta=45   #angulo inicial del puente medido desde la horizontal en sentido contrario a las manecillas del reloj
 		self.mover=True #bloque el movimiento del jugador
@@ -30,7 +30,6 @@ class EscenarioUno(Escenario):
 		# hilos para el movimiento del puente y la caida del jugador
 		self.hilop=HiloPuente(self) 
 		self.hiloC=HiloCaida(self)
-		self.Duelo=None
 		# el puente inicializa como subido
 		self.estadoPuente=EstadosPuente.Subido
 		#creacion del jugador
@@ -38,7 +37,10 @@ class EscenarioUno(Escenario):
 		self.jugador.setPosX(40)#se ubican al jugador en las posiciones correspondientes
 		self.jugador.setPosY(500)
 		self.jugador.setColor(Qt.white)
+		self.jugador.setNivel(1)
 		self.setWindowTitle("Escenario Uno")
+		self.observer=observer
+		self.show()
 		
 	def paintEvent(self, event):       
 		factRad= math.pi/180 #factor de conversion de grados a radianes
@@ -93,6 +95,21 @@ class EscenarioUno(Escenario):
 		self.theta=angulo
 		self.repaint()
 		
+	def derecha(self):
+		if self.mover :
+			self.trasladarJugador()
+			if self.mover:
+				self.repaint()
+	def izquierda(self):
+		if self.mover:
+			self.jugador.retroceder()
+			self.repaint()
+	def accion(self):
+		if self.mover:
+			self.flaqPalanca=True
+			self.repaint()
+			self.bajarPuente()
+		
 	def keyPressEvent(self,e):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			self.trasladarJugador()
@@ -130,8 +147,8 @@ class EscenarioUno(Escenario):
 			self.ActivarPuente=False
 			self.jugador.avanzar()
 			if (x>=825):
-				self.Duelo=Duelo(jugador)
-
+				self.observer.update2()
+				self.close()
 				self.mover=False
 		else:
 			self.jugador.avanzar()
@@ -143,6 +160,11 @@ class EscenarioUno(Escenario):
 	
 	def Gano(self):
 		print "Ganaste!!!"
+		
+	def detenerHilos(self):
+		pass
+		
+		
 			
 class HiloPuente(Thread):
 	#clase que sirve para descender el puente
@@ -194,10 +216,11 @@ class HiloCaida(Thread):
 				break
 
 
-
+'''
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
 	jugador=Jugador(0,0,Qt.white,5)
 	escenario=EscenarioUno(jugador)
 	escenario.show()
 	sys.exit(app.exec_())
+'''

@@ -22,3 +22,6 @@ class Escenario(QWidget):
 	def informa(self):
 		self._observer.update()
 		
+	def deterHilos(self):
+		pass
+		

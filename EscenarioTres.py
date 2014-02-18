@@ -11,7 +11,7 @@ from Duelo import *
 
 class EscenarioTres(Escenario):
 
-	def __init__(self,*args):
+	def __init__(self,jugador,observer,*args):
 		Escenario.__init__(self,*args)
 		self.mover=True #sirve para saber si el jugador se puede mover
 		self.todoTerreno=False
@@ -21,10 +21,16 @@ class EscenarioTres(Escenario):
 		self.hiloSalto=None
 		self.piso1=430
 		self.piso2=290
-		self.Duelo=None
-		self.jugador=Jugador(20,430,Qt.white,5)
+		self.observer=observer
+		self.jugador=jugador
+		self.jugador.setPosX(20)
+		self.jugador.setPosY(430)
+		self.jugador.setRadio(20)
+		self.jugador.setColor(Qt.white)
 		self.jugador.setNivel(3)
 		self.setWindowTitle("Escenario Tres")
+		self.show()
+		
 
 	def dibujarCofres(self,paint):
 		paint.setBrush(Qt.red)
@@ -55,7 +61,7 @@ class EscenarioTres(Escenario):
 			x=self.jugador.getPosX()
 			if (x>= 850) :
 				self.mover = False
-				self.Duelo=Duelo(self.jugador)
+				self.observer.update2()
 			elif(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.avanzar()
 				self.jugador.acender(2.65)
@@ -87,6 +93,11 @@ class EscenarioTres(Escenario):
 				self.todoTerreno=True
 				self.jugador.setColor(Qt.black)
 				self.repaint()
+
+	def detenerHilos(self):
+		pass
+					
+				
 class HiloCaida(Thread):
 	
 	def __init__(self,esc,dir):

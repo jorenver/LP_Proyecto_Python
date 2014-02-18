@@ -31,10 +31,11 @@ class EscenarioDos(Escenario):
 	valor=0
 	tam=0
 
-	def __init__(self,jugador,*args): #constructor		
+	def __init__(self,jugador,observer,*args): #constructor		
 		Escenario.__init__(self,*args)
 		self.mover=True
 		self.jugador=jugador
+		self.jugador.setPosX(40)
 		self.jugador.setPosY(Escenario.dimension_y-self.nivel_piso_y-50)
 		self.jugador.setColor(QColor(0,0,155))	
 		self.jugador.setRadio(50)
@@ -42,6 +43,8 @@ class EscenarioDos(Escenario):
 		self.setWindowTitle("Escenario Dos")
 		self.thread_pintarPasadizo=Hilo(self,Accion.pasadizo)
 		self.estadoEscenario=EstadoEscenario.pasadizoOff
+		self.observer=observer
+		self.show()
 
 	def paintEvent(self, event):
 		paint = QPainter()
@@ -117,14 +120,20 @@ class EscenarioDos(Escenario):
 			self.hilo.start()
 
 		if self.mover==True and self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x:
-			self.duelo=Duelo(self.jugador)
+			self.observer.update2()
 			self.mover=False
+			self.detenerHilos()
+			self.close()
 			
 
 	def  activarPasadizo(self):
 		self.mover==False #bloquea el movimiento
 		self.thread_pintarPasadizo.start()
 
+	def detenerHilos(self):
+		pass
+		
+	
 
 class Hilo(threading.Thread):
 
