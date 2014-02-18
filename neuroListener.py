@@ -7,6 +7,7 @@ from numpy import *
 import time
 from ctypes.util import find_library
 from threading import *
+from pantallaPerdio import *
 libEDK = cdll.LoadLibrary(".\\edk.dll")
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -55,6 +56,7 @@ class NeuroListener(Thread):
 
 	def __init__(self):
 		Thread.__init__(self)
+		self.stop=False
 		
 	def logEmoState(self,userID,eState):
 		print "Accion: ",ES_CognitivGetCurrentAction(eState),"\n"
@@ -92,6 +94,7 @@ class NeuroListener(Thread):
 	
 	def run(self):
 		self.conectar()
+		self.stop=False
 		while (1):
 			state = libEDK.EE_EngineGetNextEvent(eEvent)
 			if state == 0:
@@ -103,9 +106,13 @@ class NeuroListener(Thread):
 					print "%10.3f New EmoState from user %d ...\r" %(timestamp,userID.value)
 					self.logEmoState(userID,eState)   
 			elif state != 0x0600:
-			#	print "Internal error in Emotiv Engine ! "
+				print "Internal error in Emotiv Engine ! "
 				time.sleep(0.1)
+			if self.stop==True:
+				break
 		self.desconectar()
+		print "TERMINE"
+		
 
 	def desconectar(self):
 		libEDK.EE_EngineDisconnect()

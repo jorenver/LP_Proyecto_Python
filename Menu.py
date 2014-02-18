@@ -26,10 +26,10 @@ class Menu(Escenario,NeuroListener):
 		self.EscenarioActual=None
 		self.Duelo=Duelo(self)
 		self.state=0 #si esta en un escenario es 0 , si esta en un duelo es 1
-		self.start()
 		
 	def nuevoJuego(self):
 		print "Nuevo Juego"
+		self.start()
 		self.EscenarioActual=EscenarioUno(self.Jugador,self)
 		self.EscenarioActual.show()
 		self.close()	
@@ -40,7 +40,11 @@ class Menu(Escenario,NeuroListener):
 	
 	def update(self, Escenario):
 		self.State=0
-		self.EscenarioActual=Escenario
+		if Escenario!=None:
+			self.EscenarioActual=Escenario
+		else:
+			self.stop=True
+			
 		
 	def update2(self):
 		self.State=1

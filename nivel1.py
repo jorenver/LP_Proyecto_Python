@@ -9,6 +9,7 @@ from time import sleep
 from PyQt4 import QtCore
 import sys
 import math
+from pantallaPerdio import *
 
 class EstadosPuente:
 	"""
@@ -40,6 +41,7 @@ class EscenarioUno(Escenario):
 		self.jugador.setNivel(1)
 		self.setWindowTitle("Escenario Uno")
 		self.observer=observer
+		self.p=pantallaPerdio()
 		self.show()
 		
 	def paintEvent(self, event):       
@@ -156,7 +158,11 @@ class EscenarioUno(Escenario):
 	def Perdio(self):
 		if (self.jugador.vidas==0):
 			print("perdiste")
+			self.mover=False
 			self.close()
+			self.p.show()
+			self.observer.update(None)
+	
 	
 	def Gano(self):
 		print "Ganaste!!!"

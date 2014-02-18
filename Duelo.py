@@ -47,6 +47,8 @@ class Duelo(QWidget):
 		elif(self.jugador.getNivel()==2):
 			self.observer.update(EscenarioTres(self.jugador,self.observer))
 		#matar hilos
+		elif(self.jugador.getNivel()==3):
+			self.observer.update(None)
 		self.close()
 
 	def setJugador(self,jugador):

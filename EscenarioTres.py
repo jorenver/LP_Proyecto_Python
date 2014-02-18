@@ -61,6 +61,7 @@ class EscenarioTres(Escenario):
 			x=self.jugador.getPosX()
 			if (x>= 850) :
 				self.mover = False
+				self.close()
 				self.observer.update2()
 			elif(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.avanzar()
@@ -99,6 +100,7 @@ class EscenarioTres(Escenario):
 			x=self.jugador.getPosX()
 			if (x>= 850) :
 				self.mover = False
+				self.close()
 				self.observer.update2()
 			elif(self.todoTerreno and x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.avanzar()
@@ -199,9 +201,10 @@ class HiloSalto(Thread):
 			self.escenario.repaint()
 			sleep(0.25)
 
-	
+'''	
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
 	escenario_Tres=EscenarioTres()
 	escenario_Tres.show()
 	sys.exit(app.exec_())
+'''
