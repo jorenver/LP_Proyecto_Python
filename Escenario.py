@@ -21,7 +21,14 @@ class Escenario(QWidget):
 		
 	def informa(self):
 		self._observer.update()
-		
+
+	def dibujarVidas(self,painter):
+		vidas=QImage("vida","png")
+		desplazamiento=0
+		for i in range (self.jugador.getVidas()):
+			painter.drawImage(QPoint(10+desplazamiento,10),vidas)
+			desplazamiento+=55
+
 	def deterHilos(self):
 		pass
 		

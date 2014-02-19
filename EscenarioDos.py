@@ -58,6 +58,7 @@ class EscenarioDos(Escenario):
 		paint.setBrush(self.jugador.getColor())
 		paint.drawEllipse(self.jugador.getPosX(),self.jugador.getPosY(),self.jugador.getRadio(),self.jugador.getRadio())
 		paint.setBrush(Qt.gray)
+		self.dibujarVidas(paint)
 		if self.thread_pintarPasadizo!=None:
 			paint.drawRect(self.tam,Escenario.dimension_y-self.nivel_piso_y,self.thread_pintarPasadizo.valor_X,5)#rectangulo que se mueve
 		paint.end()
@@ -79,7 +80,6 @@ class EscenarioDos(Escenario):
 		painter.drawRect(self.tam,Escenario.dimension_y-20-20,30,20)
 		painter.drawRect(self.tam+self.nivel_piso_x+2*self.tam-30,Escenario.dimension_y-self.nivel_piso_y-20,30,20)
 
-
 	def derecha(self):
 		if self.mover==True: 
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
@@ -98,7 +98,7 @@ class EscenarioDos(Escenario):
 				self.jugador.avanzar()	
 
 	def izquierda(self):
-		if self.mover==True:
+		if self.mover==True and self.jugador.getPosX()>0:
 			if self.estadoEscenario==EstadoEscenario.pasadizoOff or self.estadoEscenario==EstadoEscenario.pisoTres:
 				self.jugador.retroceder()
 			else:
@@ -133,7 +133,7 @@ class EscenarioDos(Escenario):
 			self.hilo=Hilo(self,Accion.caidaLibre)
 			self.hilo.start()
 
-		if self.mover==True and self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x+75:
+		if self.mover==True and self.jugador.getPosX()>3*self.tam+self.nivel_piso_x+self.nivel_piso_x+70:
 			self.observer.update2()
 			self.mover=False
 			self.detenerHilos()

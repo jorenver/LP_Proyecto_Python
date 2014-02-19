@@ -58,6 +58,7 @@ class EscenarioUno(Escenario):
 		paint.setPen(pen)
 		paint.drawLine(650,520,650+corxPuente,520-coryPuente) # dibuja el puente
 		self.pintarPalanca(paint)
+		self.dibujarVidas(paint)
 		if (self.jugador!=None):
 			self.pintarJugador(paint)
 		paint.end()
@@ -100,12 +101,13 @@ class EscenarioUno(Escenario):
 	def derecha(self):
 		if self.mover :
 			self.trasladarJugador()
-			if self.mover:
-				self.repaint()
+			self.repaint()
+
 	def izquierda(self):
 		if self.mover:
 			self.jugador.retroceder()
 			self.repaint()
+	
 	def accion(self):
 		if self.mover:
 			self.flaqPalanca=True
@@ -115,8 +117,7 @@ class EscenarioUno(Escenario):
 	def keyPressEvent(self,e):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			self.trasladarJugador()
-			if self.mover:
-				self.repaint()
+			self.repaint()
 		
 		elif self.mover and e.key()==QtCore.Qt.Key_Left:
 			self.jugador.retroceder()
@@ -226,7 +227,7 @@ class HiloCaida(Thread):
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
 	jugador=Jugador(0,0,Qt.white,5)
-	escenario=EscenarioUno(jugador)
+	escenario=EscenarioUno(jugador,None)
 	escenario.show()
 	sys.exit(app.exec_())
 '''
