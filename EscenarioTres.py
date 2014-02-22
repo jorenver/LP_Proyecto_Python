@@ -50,8 +50,10 @@ class EscenarioTres(Escenario):
 		paint.setBrush(self.jugador.getColor())
 		center = QPoint(self.jugador.getPosX(), self.jugador.getPosY())
 		paint.drawEllipse(center,self.jugador.getRadio(),self.jugador.getRadio())
-		self.dibujarVidas(paint)
 		paint.end()
+		
+	
+		
 		
 	#se define el movimiento de el jugador
 	def keyPressEvent(self,e):
@@ -72,7 +74,7 @@ class EscenarioTres(Escenario):
 				self.hiloCaida.start()
 			else:
 				self.repaint()
-		if self.mover and e.key()==QtCore.Qt.Key_Left:
+		if self.jugador.getPosX()>20 and self.mover and e.key()==QtCore.Qt.Key_Left:
 			x=self.jugador.getPosX()
 			if(x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.retroceder()
@@ -113,7 +115,7 @@ class EscenarioTres(Escenario):
 				self.repaint()
 	
 	def izquierda(self):
-		if self.mover:
+		if self.jugador.getPosX()>20 and self.mover:
 			x=self.jugador.getPosX()
 			if(x>self._iniPendiente and x<self._finPendiente):
 				self.jugador.retroceder()
@@ -199,10 +201,10 @@ class HiloSalto(Thread):
 			self.escenario.repaint()
 			sleep(0.25)
 
-
+'''	
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
-	jugador=Jugador(0,0,Qt.white,5)
-	escenario_Tres=EscenarioTres(jugador,None)
+	escenario_Tres=EscenarioTres()
 	escenario_Tres.show()
 	sys.exit(app.exec_())
+'''

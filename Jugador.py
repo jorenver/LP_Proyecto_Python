@@ -6,7 +6,7 @@ class Jugador:
 		self._posX=x
 		self._posY=y
 		self._color=c
-		self.vidas=1
+		self.vidas=3
 		self._velocidad=v
 		self._radio=20
 		self.nivel_actual=1

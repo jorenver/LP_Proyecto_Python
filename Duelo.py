@@ -42,6 +42,7 @@ class Duelo(QWidget):
 		self.show()
 		
 	def terminar(self):
+		sleep(0.3)
 		if(self.jugador.getNivel()==1):
 			self.observer.update(EscenarioDos(self.jugador,self.observer))
 		elif(self.jugador.getNivel()==2):
@@ -87,7 +88,7 @@ class Duelo(QWidget):
 			painter.drawText (area, Qt.AlignCenter, text)   
 	
 	def keyPressEvent(self,e):
-		if e.key()==QtCore.Qt.Key_Right and self.aleatorio==1:
+		if self.mover and e.key()==QtCore.Qt.Key_Right and self.aleatorio==1:
 			self.anchopintado=498
 			if (self.dificultad>1):
 				self.aleatorio=random.choice(range(3))
@@ -97,7 +98,7 @@ class Duelo(QWidget):
 				self.pintar.stop=True
 				print "gano"
 				self.terminar()
-		if e.key()==QtCore.Qt.Key_Left and self.aleatorio==2:
+		if self.mover and e.key()==QtCore.Qt.Key_Left and self.aleatorio==2:
 			self.anchopintado=498
 			if (self.dificultad>1):
 				self.aleatorio=random.choice(range(3))
@@ -107,7 +108,42 @@ class Duelo(QWidget):
 				self.pintar.stop=True
 				print "gano"
 				self.terminar()
-		if e.key()==QtCore.Qt.Key_X and self.aleatorio==0:
+		if self.mover and e.key()==QtCore.Qt.Key_X and self.aleatorio==0:
+			self.anchopintado=498
+			if (self.dificultad>1):
+				self.aleatorio=random.choice(range(3))
+				self.dificultad-=1
+			else:
+				self.hilo.stop=True
+				self.pintar.stop=True
+				print "gano"
+				self.terminar()
+	
+	def derecha(self):
+		if self.mover and self.aleatorio==1:
+			self.anchopintado=498
+			if (self.dificultad>1):
+				self.aleatorio=random.choice(range(3))
+				self.dificultad-=1
+			else:
+				self.hilo.stop=True
+				self.pintar.stop=True
+				print "gano"
+				self.terminar()
+	def izquierda(self):
+		if self.mover and self.aleatorio==2:
+			self.anchopintado=498
+			if (self.dificultad>1):
+				self.aleatorio=random.choice(range(3))
+				self.dificultad-=1
+			else:
+				self.hilo.stop=True
+				self.pintar.stop=True
+				print "gano"
+				self.terminar()
+	
+	def accion(self):
+		if self.mover and self.aleatorio==0:
 			self.anchopintado=498
 			if (self.dificultad>1):
 				self.aleatorio=random.choice(range(3))

@@ -20,18 +20,13 @@ class pantallaPerdio(QWidget):
 		self.setWindowIcon(QIcon("icono.png"))
 		self.setLayout(contenedor)
 		
-	#def paintEvent(self, event):       
-		#paint = QPainter()
-		#paint.begin(self)
-		#imagen=QImage("gameover","png")
-		#center=QPoint(0,0)
-		#paint.drawImage(center,imagen) # inserto el fondo
-		#paint.end()
+	def paintEvent(self, event):       
+		paint = QPainter()
+		paint.begin(self)
+		imagen=QImage("gameover","png")
+		center=QPoint(0,0)
+		paint.drawImage(center,imagen) # inserto el fondo
+		paint.end()
 		
 
-		
-if __name__=="__main__":
-	app=QApplication(sys.argv)	
-	escenario=pantallaPerdio()
-	escenario.show()
-	sys.exit(app.exec_())
+	

@@ -43,9 +43,9 @@ ES_CognitivGetCurrentActionPower.argtypes= [c_void_p]
 
 userID            = c_uint(0)
 user                    = pointer(userID)
-composerPort          = c_uint(1726)
-timestamp = c_float(0.0)
-option      = c_int(0)
+#composerPort          = c_uint(1726)
+#timestamp = c_float(0.0)
+#option      = c_int(0)
 state     = c_int(0)
 
 
@@ -59,7 +59,7 @@ class NeuroListener(Thread):
 		self.stop=False
 		
 	def logEmoState(self,userID,eState):
-		print "Accion: ",ES_CognitivGetCurrentAction(eState),"\n"
+		#print "Accion: ",ES_CognitivGetCurrentAction(eState),"\n"
 		if(ES_CognitivGetCurrentAction(eState)==0x0020):
 		   self.izquierda()
 		if(ES_CognitivGetCurrentAction(eState)==0x0002):
@@ -68,9 +68,7 @@ class NeuroListener(Thread):
 		   self.derecha()
 		if(ES_CognitivGetCurrentAction(eState)==0x0001):
 		   self.neutro()
-		print ES_CognitivGetCurrentActionPower(eState)
 		print "poder: ",ES_CognitivGetCurrentActionPower(eState),"\n"
-		print '\n'
 	#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	def izquierda(self):
@@ -80,14 +78,13 @@ class NeuroListener(Thread):
 		print "derecha\n"
 		
 	def neutro(self):
-		print "neutral\n"
+		pass
 		
 	def accion(self):
 		print "push\n"
 
 	def conectar(self):
 		if  libEDK.EE_EngineRemoteConnect("127.0.0.1",3008)!=0:
-			print "Emotiv Engine start up failed."
 			eProfile  = libEDK.EE_ProfileEventCreate()
 			libEDK.EE_GetBaseProfile(eProfile)
 			libEDK.EE_GetUserProfile(userID, eProfile)
@@ -100,18 +97,14 @@ class NeuroListener(Thread):
 			if state == 0:
 				eventType = libEDK.EE_EmoEngineEventGetType(eEvent)
 				libEDK.EE_EmoEngineEventGetUserId(eEvent, user)
-				if eventType == 64: #libEDK.EE_Event_enum.EE_EmoStateUpdated
+				if eventType == 64:
 					libEDK.EE_EmoEngineEventGetEmoState(eEvent,eState)
-					timestamp = ES_GetTimeFromStart(eState)
-					print "%10.3f New EmoState from user %d ...\r" %(timestamp,userID.value)
 					self.logEmoState(userID,eState)   
 			elif state != 0x0600:
-				print "Internal error in Emotiv Engine ! "
 				time.sleep(0.1)
 			if self.stop==True:
 				break
 		self.desconectar()
-		print "TERMINE"
 		
 
 	def desconectar(self):

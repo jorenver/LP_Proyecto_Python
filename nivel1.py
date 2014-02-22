@@ -58,7 +58,6 @@ class EscenarioUno(Escenario):
 		paint.setPen(pen)
 		paint.drawLine(650,520,650+corxPuente,520-coryPuente) # dibuja el puente
 		self.pintarPalanca(paint)
-		self.dibujarVidas(paint)
 		if (self.jugador!=None):
 			self.pintarJugador(paint)
 		paint.end()
@@ -101,13 +100,12 @@ class EscenarioUno(Escenario):
 	def derecha(self):
 		if self.mover :
 			self.trasladarJugador()
-			self.repaint()
-
+			if self.mover:
+				self.repaint()
 	def izquierda(self):
-		if self.mover:
+		if self.jugador.getPosX()>20 and self.mover:
 			self.jugador.retroceder()
 			self.repaint()
-	
 	def accion(self):
 		if self.mover:
 			self.flaqPalanca=True
@@ -117,9 +115,10 @@ class EscenarioUno(Escenario):
 	def keyPressEvent(self,e):
 		if self.mover and e.key()==QtCore.Qt.Key_Right:
 			self.trasladarJugador()
-			self.repaint()
+			if self.mover:
+				self.repaint()
 		
-		elif self.mover and e.key()==QtCore.Qt.Key_Left:
+		elif self.jugador.getPosX()>20 and self.mover and e.key()==QtCore.Qt.Key_Left:
 			self.jugador.retroceder()
 			self.repaint()
 		
@@ -161,8 +160,7 @@ class EscenarioUno(Escenario):
 			print("perdiste")
 			self.mover=False
 			self.close()
-			self.p.show()
-			self.observer.update(None)
+			self.observer.perder()
 	
 	
 	def Gano(self):
@@ -218,16 +216,16 @@ class HiloCaida(Thread):
 			else:
 				if (self.escenario.jugador.vidas!=0):
 					self.escenario.jugador.disminuirVidas()
-					self.escenario.reiniciar()
 				print ("ha perdido")
 				break
+		self.escenario.reiniciar()
 
 
 '''
 if __name__=="__main__":
 	app=QApplication(sys.argv)	
 	jugador=Jugador(0,0,Qt.white,5)
-	escenario=EscenarioUno(jugador,None)
+	escenario=EscenarioUno(jugador)
 	escenario.show()
 	sys.exit(app.exec_())
 '''
